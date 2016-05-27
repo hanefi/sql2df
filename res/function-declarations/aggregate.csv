@@ -1,0 +1,27 @@
+avg,numeric,smallint
+avg,numeric,integer
+avg,numeric,bigint
+avg,double precision,real
+avg,double precision,double precision
+avg,numeric,numeric
+avg,interval,interval
+bit_and,smallint,smallint
+bit_and,integer,integer
+bit_and,bigint,bigint
+bit_and,bit,bit
+bit_or,smallint,smallint
+bit_or,integer,integer
+bit_or,bigint,bigint
+bit_or,bit,bit
+count,bigint
+count,bigint,any
+every,boolean,boolean
+json_agg,json,any
+jsonb_agg,jsonb,any
+json_object_agg,json,any,any
+jsonb_object_agg,jsonb,any,any
+string_agg,text,text,text
+string_agg,bytea,bytea,bytea
+sum,bigint,smallint
+sum,bigint,integer
+sum,numeric,bigint

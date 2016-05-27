@@ -1,0 +1,3 @@
+count,any,bigint
+sum,integer,bigint
+avg,integer,numeric

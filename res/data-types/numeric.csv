@@ -1,0 +1,10 @@
+smallint,16
+integer,32
+bigint,64
+real,32
+double precision,64
+smallserial,16
+serial,32
+bigserial,64
+decimal,4
+numeric,4

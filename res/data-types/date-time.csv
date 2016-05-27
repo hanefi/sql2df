@@ -1,0 +1,4 @@
+timestamp,64
+date,32
+time,96
+interval,128
