@@ -12,5 +12,4 @@ where
 		and p_size between 1 and 5
 		and l_shipmode in ('AIR', 'AIR REG')
 		and l_shipinstruct = 'DELIVER IN PERSON'
-		and uyduruk(p_partkey)
 	);

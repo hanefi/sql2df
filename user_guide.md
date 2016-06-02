@@ -1,3 +1,5 @@
+First of all you need to install JRE and GraphViz to your computer. JRE automatically adds its executables to the system's path but you may need to add GraphViz to your PATH manually. In Windows, you may need to enter Control Panel, System and Security, System. In the right bar you can select Advanced System Settings, and click on Environment Variables. In the System variables list select the Path and click on the Edit button. Then add bin directory of the GraphViz at the end of the Path string separated with a semicolon (;).
+
 sql2df.jar is an executable jar archive. It contains all necessary dependencies. It should be run with two command line arguments:
 - SQL file containing CREATE TABLE queries to extract table schema
 - SQL file containing SELECT query to be converted.
