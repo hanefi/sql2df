@@ -24,8 +24,9 @@ After invoking the application, two new files are generated. For the above examp
 # Visualization
 
 Even though the DOT language is designed to be human readable, a graphical representation should be better for most. GraphViz is a very popular graph visualization platform that visualizes graphs described in the DOT language. It can called with the following command:
-`cd res`
-`dot -Tpng q1.sql.dot -o q1.sql.png`
-`dot -Tpng q1.sql.filter.dot -o q1.sql.filter.png`
+
+- `cd res`
+- `dot -Tpng q1.sql.dot -o q1.sql.png`
+- `dot -Tpng q1.sql.filter.dot -o q1.sql.filter.png`
 
 After these `dot` invokations, two image files *q1.sql.png* and *q1.sql.filter.png* should be present. They are the high level data-flow graph and the low level filtering / selection graphs respectively.
