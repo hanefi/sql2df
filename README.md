@@ -38,4 +38,4 @@ Every instance of these clases are stored in edgeList lists defined in classes. 
 # Other material
 The detailed **project report** for this framework can be found [here](https://www.dropbox.com/s/x7vsl4mf3v7nbgy/son.pdf?dl=0).
 
-An explanation video can be watched [here](https://youtu.be/r7FHBXGyH4E).
+An explanation **video** can be watched [here](https://youtu.be/r7FHBXGyH4E).
