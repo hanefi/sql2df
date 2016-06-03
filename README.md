@@ -34,3 +34,5 @@ Every instance of these clases are stored in edgeList lists defined in classes. 
   - `dataTypeOfColumnMap`: Key is column name, value is its data type
   Assumes that no two columns with the same name exist.
 - *processQuery*: Processes a query. First of all, it parses a query. Then creates a high level data-flow graph with table name, FILTER, GROUP, SELECT, and ORDER nodes. Two low level graphs are also created. One for filtering and one for selection. As this method is the most of the application, detailed explanation is done at the source code file as the source code comments.
+
+The detailed project report for this framework can be found [here](https://www.dropbox.com/s/x7vsl4mf3v7nbgy/son.pdf?dl=0).
