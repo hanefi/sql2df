@@ -1,3 +1,8 @@
+[**doc**](https://github.com/cmpe492-cg/sql2df/tree/master/doc) folder contains JavaDoc documentation generated from the source code comments. They describe the functionality of classes and functions.
+**res** folder contains non-code resources such as data type definitions, CREATE TABLE queries, SELECT queries, function declarations, etc.
+**src/main/java* folder contains the source code. It is heavily commented and JavaDoc documentation generated from this comments can be found in *res* folder.
+**.idea** folder contains IDE related configuration files. It is safe to ignore it, if you are not using Intellij IDEA.
+
 **Edge** is an interface defined in Edge.java to represent dataflow between two vertices. Two classes implements it:
 - *EdgeImpl*: Used for data flow representation in the high level data-flow graph.
 - *ExpressionEdgeImpl*: Used for data flow representation in the low level filter and select data-flow graphs.
