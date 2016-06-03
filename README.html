@@ -1,0 +1,38 @@
+<h1>Folder structure</h1>
+
+<ul>
+<li><a href="https://github.com/cmpe492-cg/sql2df/tree/master/doc"><strong>doc</strong></a> folder contains JavaDoc documentation generated from the source code comments. They describe the functionality of classes and functions.</li>
+<li><a href="https://github.com/cmpe492-cg/sql2df/tree/master/res"><strong>res</strong></a> folder contains non-code resources such as data type definitions, CREATE TABLE queries, SELECT queries, function declarations, etc.</li>
+<li><a href="https://github.com/cmpe492-cg/sql2df/tree/master/src/main/java"><strong>src/main/java</strong></a> folder contains the source code. It is heavily commented and JavaDoc documentation generated from this comments can be found in <em>res</em> folder.</li>
+<li><a href="https://github.com/cmpe492-cg/sql2df/tree/master/.idea"><strong>.idea</strong></a> folder contains IDE related configuration files. It is safe to ignore it, if you are not using Intellij IDEA.</li>
+</ul>
+
+<h1>Overall explanation of the framework</h1>
+
+<p><strong>Edge</strong> is an interface defined in Edge.java to represent dataflow between two vertices. Two classes implements it:
+- <em>EdgeImpl</em>: Used for data flow representation in the high level data-flow graph.
+- <em>ExpressionEdgeImpl</em>: Used for data flow representation in the low level filter and select data-flow graphs.
+Every instance of these clases are stored in edgeList lists defined in classes. These lists are used to print the graph to a file in the DOT language.</p>
+
+<p><strong>Vertex</strong> is an interface used to represent operations on or sources of data flows. It has two implementing classes:
+- <em>TableVertex</em>: Used for representing a table as the origin of a data flow. Used through static getTableVertex method. When this method is used, if a vertex is already created for a table, it is returned. Otherwise a new vertex is created.
+- <em>VertexImpl</em>: Used for representing all other vertices. It guarantees the uniqueness of each vertex by adding an unique id to each created instance.</p>
+
+<p><strong>FunctionDef</strong> is a class to store function declarations. It identifies a function by its name, the type of its parameters, and the type of its return value.</p>
+
+<p><strong>ColumnNamesExtractor</strong> is an <em><code>ExpressionVisitor</code></em> class used to extract the column names from an expression. To extract the column names from an Expression <code>e</code>, a ColumnNamesExtractor <code>c</code> is used as: <code>e.accept(c)</code>. Then the return value of <code>c.getColumns()</code> will be the set of column names used in <code>e</code>.</p>
+
+<p><strong>ExpressionGraphGenerator</strong> is also an <em>ExpressionVisitor</em> class. It is used to generate the low level data-flow graph of an expression. On an Expression <code>e</code>, an <strong>ExpressionGraphGenerator</strong> <code>g</code> is called as: <code>e.accept(g)</code>. After this call <code>g.rootVertex</code> will be the last (root) vertex of the generated data-flow graph (or tree in most cases), and <code>g.dataType</code> will be the data type of the expression. This class contains a visit function for each possible Expression type. Not all of them are completed, but most of the SQL standard is implemented.</p>
+
+<p><strong>SelectGraphGenerator</strong> is a <em>SelectItemVisitor</em>. It is used to generate the low level data-flow graph of a select item. As all select items should be in the same low level graph, they're connected to a dummy END node. This node should be provided to this class' constructor.</p>
+
+<p><strong>App</strong> class is the main body of the application. It includes many utility functions. Explanations and some pointers to most of them are given here:
+- <em>readStorageSizes</em>: Reads the storage sizes of data types from res/data-types folder. Each file in this folder is parsed.
+- <em>readFunctions</em>: Reads the function declarations from res/function-declarations folder. Each file in this folder is parsed.
+- <em>readQueriesFromFile</em>: Read multiple queries from a file. Queries must be separated by a semicolon. Returns a List of Strings.
+- <em>learnTableSchema</em>: Gets a CREATE TABLE query. Extracts the schema information from this query. Updates 3 maps:
+  - <code>tableOfColumnMap</code>: Key is column name, value is its table name
+  - <code>columnsOfTableMap</code>: Key is table name, value is the set of its column names
+  - <code>dataTypeOfColumnMap</code>: Key is column name, value is its data type
+  Assumes that no two columns with the same name exist.
+- <em>processQuery</em>: Processes a query. First of all, it parses a query. Then creates a high level data-flow graph with table name, FILTER, GROUP, SELECT, and ORDER nodes. Two low level graphs are also created. One for filtering and one for selection. As this method is the most of the application, detailed explanation is done at the source code file as the source code comments.</p>

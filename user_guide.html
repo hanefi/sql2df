@@ -1,0 +1,38 @@
+<h1>Dependencies</h1>
+
+<p>First of all, you need to install <a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html">Java Runtime Environment</a> and <a href="http://www.graphviz.org/Download.php">GraphViz</a> to your computer. The code is written and tested using Java version 8. JRE automatically adds its executables to the system's path but you may need to add GraphViz to your PATH manually. In Windows, you may need to enter <em>Control Panel</em>, <em>System and Security</em>, <em>System</em>. In the right bar you can select <em>Advanced System Settings</em>, and click on <em>Environment Variables</em>. In the <em>System variables</em> list select the <em>Path</em> and click on the <em>Edit</em> button. Then add bin directory of the GraphViz at the end of the Path string separated with a semicolon (;).</p>
+
+<h1>How to run</h1>
+
+<p>sql2df.jar is an executable jar archive. It contains all necessary Java dependencies. It should be run with two command line arguments:</p>
+
+<p><code>java -jar sql2df.jar &lt;create table query file&gt; &lt;select query file&gt;</code></p>
+
+<ol>
+<li>SQL file containing CREATE TABLE queries to extract table schema</li>
+<li>SQL file containing SELECT query to be converted.</li>
+</ol>
+
+<p>An example invokation:</p>
+
+<p><code>java -jar sql2df.jar res/create_table.sql res/q1.sql</code>.</p>
+
+<p>On Windows OS, instead of "/", you may need to use "\".</p>
+
+<p>This application assumes that a <code>res</code> folder resides next to it and this <code>res</code> folder contains <code>data-types</code> and <code>function-declarations</code> sub-folders. These are the folders that contains storage sizes for data types and function declarations.</p>
+
+<p>After invoking the application, two new files are generated. For the above example these are:
+- <code>q1.sql.dot</code>: High level data-flow graph in DOT language.
+- <code>q1.sql.filter.dot</code>: Low level filtering and selection sub-graphs in DOT language.</p>
+
+<h1>Visualization</h1>
+
+<p>Even though the DOT language is designed to be human readable, a graphical representation should be better for most. GraphViz is a very popular graph visualization platform that visualizes graphs described in the DOT language. It can called with the following command:</p>
+
+<ul>
+<li><code>cd res</code></li>
+<li><code>dot -Tpng q1.sql.dot -o q1.sql.png</code></li>
+<li><code>dot -Tpng q1.sql.filter.dot -o q1.sql.filter.png</code></li>
+</ul>
+
+<p>After these <code>dot</code> invocations, two image files <em>q1.sql.png</em> and <em>q1.sql.filter.png</em> should be present. They are the high level data-flow graph and the low level filtering / selection graphs respectively.</p>
