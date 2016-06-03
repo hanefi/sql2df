@@ -29,4 +29,4 @@ Even though the DOT language is designed to be human readable, a graphical repre
 - `dot -Tpng q1.sql.dot -o q1.sql.png`
 - `dot -Tpng q1.sql.filter.dot -o q1.sql.filter.png`
 
-After these `dot` invokations, two image files *q1.sql.png* and *q1.sql.filter.png* should be present. They are the high level data-flow graph and the low level filtering / selection graphs respectively.
+After these `dot` invocations, two image files *q1.sql.png* and *q1.sql.filter.png* should be present. They are the high level data-flow graph and the low level filtering / selection graphs respectively.
