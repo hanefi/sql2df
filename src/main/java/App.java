@@ -118,14 +118,15 @@ public class App {
 
         // Extracts table schemas from each CREATE TABLE query.
         for (String query : createQueries) {
+            System.out.println("The table create query is: " + query); //DEBUG
             learnTableSchema(query);
         }
 
         // Reads SELECT queries from the file specified in the first argument.
         List<String> selectQueries = readQueriesFromFile(new File(args[1]));
-
         // Processes each SELECT query to generate data-flow graphs.
         for (String selectQuery : selectQueries) {
+            System.out.println("A SELECT query: " + selectQuery);
             processQuery(selectQuery, args[1]);
         }
     }
@@ -223,6 +224,8 @@ public class App {
         Select select = (Select) CCJSqlParserUtil.parse(selectQuery);   // Parses a SELECT query.
         SelectBody selectBody = select.getSelectBody();
 
+        System.out.println("Processing query: " + selectQuery); //DEBUG
+
         Set<String> tables = extractTables(selectBody); // Extracts table names from the SELECT query.
 
         // Extracts column names from the SELECT query.
@@ -236,11 +239,15 @@ public class App {
 
         if (selectBody instanceof PlainSelect) {
             PlainSelect plainSelect = (PlainSelect) selectBody;
-
+            System.out.println("Plain Select Body: " + plainSelect); //DEBUG
+            System.out.println("Before generating SELECT Graph"); //DEBUG
             generateSelectGraph(plainSelect);   // Generates the SELECT sub-graph of the query.
 
+            System.out.println("Before generating WHERE clause"); //DEBUG
             Expression expression = plainSelect.getWhere(); // WHERE clause of the SELECT query.
+            System.out.println("WHERE Clause: " + expression); //DEBUG
             if (expression != null) {
+                System.out.println("Before generating FILTER Graph"); //DEBUG
                 generateFilterGraph(expression, selectColumns); // Generates the FILTER sub-graph of the query.
 
                 Vertex filterVertex = new VertexImpl("FILTER"); // Creates the FILTER node in the high level graph.
@@ -272,9 +279,16 @@ public class App {
 
             // Connects each column that is used in SELECT clause from their last vertex to SELECT vertex.
             for (String column : selectColumns) {
+                System.out.println("Connecting column " + column + " to select vertex"); //DEBUG
                 String dataType = dataTypeOfColumnMap.get(column);
                 Vertex lastVertex = lastVertexOfColumn.get(column);
-                EdgeImpl.createEdge(column, lastVertex, selectVertex, dataType);
+                System.out.println("Column info: "+ dataType + " " + lastVertex); //DEBUG
+                if(lastVertex != null)
+                    EdgeImpl.createEdge(column, lastVertex, selectVertex, dataType);
+                else{
+                    String table = tableOfColumnMap.get(column);
+                    EdgeImpl.createEdge(column, TableVertex.getTableVertex(table), selectVertex, dataType);
+                }
             }
 
             List<SelectItem> selectItems = plainSelect.getSelectItems();    // Selected items in the SELECT clause
@@ -504,11 +518,14 @@ public class App {
 
         String tableName = createTable.getTable().getName().toLowerCase(Locale.ENGLISH);
 
+        System.out.println("In table:" + tableName); //DEBUG
+
         Set<String> columns = new HashSet<>();
 
         for (ColumnDefinition columnDefinition : createTable.getColumnDefinitions()) {
             String columnName = columnDefinition.getColumnName().toLowerCase(Locale.ENGLISH);
             ColDataType dataType = columnDefinition.getColDataType();
+            System.out.println(tableName + " " + columnName + " " + dataType ); //DEBUG:
             tableOfColumnMap.put(columnName, tableName);
             dataTypeOfColumnMap.put(columnName, dataType.toString().toLowerCase(Locale.ENGLISH));
             columns.add(columnName);
