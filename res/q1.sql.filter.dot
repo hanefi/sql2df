@@ -27,7 +27,7 @@ digraph {
 "avg, id: 25" -> "END_SELECT, id: 0"[label=" as avg_price[decimal (15, 2)] = 60"]
 "l_discount, id: 28" -> "avg, id: 27"[label="[decimal (15, 2)] = 60"]
 "avg, id: 27" -> "END_SELECT, id: 0"[label=" as avg_disc[decimal (15, 2)] = 60"]
-"count, id: 29" -> "END_SELECT, id: 0"[label=" as count_order[bigint] = 64"]
+"count, id: 29" -> "END_SELECT, id: 0"[label=" as count_order[unknown] = -1"]
 "1998-12-01, id: 32" -> "Subtraction, id: 31"[label="[char (10)] = 80"]
 "INTERVAL '90' day, id: 33" -> "Subtraction, id: 31"[label="[interval] = 128"]
 "l_shipdate, id: 30" -> "MinorThanEquals, id: 34"[label="[date] = 32"]
