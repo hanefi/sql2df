@@ -1,5 +1,8 @@
+package main;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,12 +33,10 @@ public abstract class Vertex {
 	}
 	
 	public void addOutgoingEdge(ExpressionEdgeImpl edge){
-		System.out.println("Adding Outgoing Edge: "+ edge);
 		outgoingEdges.add(edge);
 	}
 	
 	public void addIncomingEdge(ExpressionEdgeImpl edge){
-		System.out.println("Adding Incoming Edge: "+ edge);
 		incomingEdges.add(edge);
 	}
 	

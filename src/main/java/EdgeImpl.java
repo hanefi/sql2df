@@ -1,3 +1,4 @@
+package main;
 import net.sf.jsqlparser.statement.create.table.ColDataType;
 
 import java.util.ArrayList;
