@@ -1,15 +1,16 @@
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A Vertex implementation for representation of the tables.
  * Instances of this class should be created with the provided static method: getTableVertex
  */
-public class TableVertex implements Vertex {
+public class TableVertex extends Vertex {
 	
 	private String tableName;
-	private List<Edge> outgoingEdges;
 	private static Map<String, TableVertex> tableVertexMap = new HashMap<>();
 	
 
@@ -18,15 +19,10 @@ public class TableVertex implements Vertex {
 	}
 
 	@Override
-	public List<Edge> getOutgoingEdges() {
-		return outgoingEdges;
-	}
-
-	@Override
 	public String toString() {
 		return "table: " + tableName;
 	}
-
+	
     /**
      * Returns the vertex for the specified table.
      *
@@ -40,5 +36,16 @@ public class TableVertex implements Vertex {
 		}
 		
 		return tableVertexMap.get(tableName);
+	}
+	
+	public static TableVertex fromString(String vertexString) {
+		Pattern vertexPattern = Pattern.compile("table: "+"(.*)");
+		Matcher vertexMatcher = vertexPattern.matcher(vertexString);
+		if(vertexMatcher.find()){
+			String vertexName = vertexMatcher.group(1);
+			return getTableVertex(vertexName);
+		} else {
+			throw new IllegalArgumentException("Cannot parse TableVertex from String: " + vertexString);
+		}
 	}
 }

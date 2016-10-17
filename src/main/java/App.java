@@ -16,10 +16,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 public class App {
 
@@ -140,7 +142,11 @@ public class App {
      */
     public static void readFunctions() throws FileNotFoundException {
         try {
-            Files.walk(Paths.get("res/function-declarations")).forEach(filePath -> {
+        	  Stream<Path> stream = Files.walk(Paths.get("res/data-types"));
+              Iterator<Path> iterator = stream.iterator();
+              while(iterator.hasNext())
+              {
+            	Path filePath = iterator.next();
                 if (Files.isRegularFile(filePath)) {
                     try {
                         readFunctionFromFile(filePath.toString());
@@ -148,7 +154,7 @@ public class App {
                         e.printStackTrace();
                     }
                 }
-            });
+              }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -543,7 +549,10 @@ public class App {
     public static void readStorageSizes() {
 
         try {
-            Files.walk(Paths.get("res/data-types")).forEach(filePath -> {
+            Stream<Path> stream = Files.walk(Paths.get("res/data-types"));
+            Iterator<Path> iterator = stream.iterator();
+            while(iterator.hasNext()){
+            	Path filePath = iterator.next();
                 if (Files.isRegularFile(filePath)) {
                     try {
                         readStorageSizeFromFile(filePath.toString());
@@ -551,7 +560,7 @@ public class App {
                         e.printStackTrace();
                     }
                 }
-            });
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
