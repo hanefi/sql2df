@@ -108,24 +108,4 @@ public class GraphUtils{
     	}
     	
     }
-    
-    public static void main(String[] args) throws IOException{
-    	init();
-        GraphUtils utils = new GraphUtils("res/q1.sql.dot");
-        //Vertex vertex1 = utils.graph.vertices.get("FILTER, id: 48");
-        //Vertex vertex2 = utils.graph.vertices.get("GROUP, id: 49");
-        //Vertex vertex3 = utils.graph.vertices.get("SELECT, id: 50");
-
-        //utitestPaths(utils, "lineitem", "l_tax");
-        List<Vertex> list = new LinkedList<>();
-        
-        //list.add(vertex1);
-        //list.add(vertex3);
-        
-        //MetaVertex metaVertex = new MetaVertex(list, utils.graph, "META_VERTEX");
-        
-       // System.out.println(vertex1.getFanIn()+" "+vertex1.getFanOut());
-        System.out.println(utils.graph);
-        //System.out.println(metaVertex.getSubGraph());
-    }
 }
