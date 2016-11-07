@@ -10,6 +10,7 @@ public abstract class Vertex {
 	
 	List<ExpressionEdgeImpl> outgoingEdges;
 	List<ExpressionEdgeImpl> incomingEdges;
+	public int id;
 	
 	public Vertex(){
 		outgoingEdges = new LinkedList<>();

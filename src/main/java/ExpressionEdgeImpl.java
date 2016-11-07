@@ -10,7 +10,9 @@ public class ExpressionEdgeImpl implements Edge {
     private Vertex sourceVertex;
     private Vertex destinationVertex;
     public String dataType;
-
+    public int id;
+       
+    private static int GLOBAL_EDGE_ID = 0;
 
     public static List<ExpressionEdgeImpl> edgeList = new ArrayList<>();
 
@@ -34,18 +36,23 @@ public class ExpressionEdgeImpl implements Edge {
         destinationVertex.addIncomingEdge(this);
     }
 
-    public static ExpressionEdgeImpl createEdge(String edgeName, Vertex sourceVertex, Vertex destinationVertex, String dataType) {
+    public static ExpressionEdgeImpl createEdge(String edgeName, Vertex sourceVertex, Vertex destinationVertex, String dataType, int id) {
         ExpressionEdgeImpl edgeImpl = new ExpressionEdgeImpl();
         edgeImpl.edgeName = edgeName;
         edgeImpl.sourceVertex = sourceVertex;
         edgeImpl.destinationVertex = destinationVertex;
         edgeImpl.dataType = dataType;
+        edgeImpl.id = id;
         
         sourceVertex.addOutgoingEdge(edgeImpl);
         destinationVertex.addIncomingEdge(edgeImpl);
         
         edgeList.add(edgeImpl);
         return edgeImpl;
+    }
+    
+    public static ExpressionEdgeImpl createEdge(String edgeName, Vertex sourceVertex, Vertex destinationVertex, String dataType){
+    	return createEdge(edgeName, sourceVertex, destinationVertex, dataType, getNextEdgeID());
     }
 
 
@@ -82,6 +89,10 @@ public class ExpressionEdgeImpl implements Edge {
     @Override
     public String toString() {
         return edgeName + "[" + dataType.toString() + "] = " + dataSize(dataType);
+    }
+    
+    public static int getNextEdgeID(){
+    	return GLOBAL_EDGE_ID ++;
     }
 
 }

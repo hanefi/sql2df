@@ -18,6 +18,11 @@ public class TableVertex extends Vertex {
 	public TableVertex(String tableName) {
 		this.tableName = tableName;
 	}
+	
+	public TableVertex(String tableName, int id) {
+		this(tableName);
+		this.id = id;
+	}
 
 	@Override
 	public String toString() {

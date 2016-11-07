@@ -41,12 +41,16 @@ public class App {
      */
     public static void generateFilterGraph(Expression filterExpression, Set<String> selectColumns) {
         // Generates a sub-graph with one boolean filter output.
-        ExpressionGraphGenerator expressionGraphGenerator = new ExpressionGraphGenerator();
+        MetaVertex metaVertex = new MetaVertex("FILTER_SUBGRAPH");
+    	ExpressionGraphGenerator expressionGraphGenerator = new ExpressionGraphGenerator("FILTER_QUERY", metaVertex.subGraph);
         filterExpression.accept(expressionGraphGenerator);
-        Vertex filterRootVertex = expressionGraphGenerator.rootVertex;
-
-        Vertex endVertex = new VertexImpl("END_FILTER");    // Creates a dummy END vertex to connect all filtered columns.
-
+        //Vertex filterRootVertex = expressionGraphGenerator.rootVertex;
+       
+        metaVertex.subGraph.vertices.put(expressionGraphGenerator.toString(), expressionGraphGenerator);
+        
+        //Vertex endVertex = new VertexImpl("END_FILTER");    // Creates a dummy END vertex to connect all filtered columns.
+        //metaVertex.putVertex(endVertex);
+        
         /**
          * Creates a selection vertex for each column that is used in SELECT clause.
          * The boolean filtering output, filterRootVertex, and the column to be filtered is connected to the selection vertex.
@@ -54,11 +58,16 @@ public class App {
          */
         for (String selectColumn : selectColumns) {
             Vertex selectVertex = new VertexImpl("Selection");
+            metaVertex.putVertex(selectVertex);
             String columnDataType = dataTypeOfColumnMap.get(selectColumn).toString().toLowerCase(Locale.ENGLISH);
-            ExpressionEdgeImpl.createEdge("", new VertexImpl(selectColumn), selectVertex, columnDataType);
-            ExpressionEdgeImpl.createEdge("", filterRootVertex, selectVertex, "boolean");
-            ExpressionEdgeImpl.createEdge(selectColumn + "'", selectVertex, endVertex, columnDataType);
+            metaVertex.subGraph.edges.add(ExpressionEdgeImpl.createEdge(selectColumn, metaVertex.rootVertex , selectVertex, columnDataType));
+            expressionGraphGenerator.putEdge("", expressionGraphGenerator.rootVertex, selectVertex, "boolean");
+            metaVertex.subGraph.edges.add(ExpressionEdgeImpl.createEdge(selectColumn + "'", selectVertex, metaVertex.sinkVertex, columnDataType));
         }
+        
+        System.out.println("Printing Subgraph"); //DEBUG
+        metaVertex.collapseChildren();
+        System.out.println(metaVertex.subGraph);
     }
 
 
@@ -296,6 +305,7 @@ public class App {
                     String table = tableOfColumnMap.get(column);
                     EdgeImpl.createEdge(column, TableVertex.getTableVertex(table), selectVertex, dataType);
                 }
+                lastVertexOfColumn.put(column, selectVertex);
             }
 
             List<SelectItem> selectItems = plainSelect.getSelectItems();    // Selected items in the SELECT clause

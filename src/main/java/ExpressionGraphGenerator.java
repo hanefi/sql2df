@@ -17,7 +17,7 @@ import java.util.Locale;
  * Last (root) vertex is stored in rootVertex.
  * Data type of the visited expression is stored in dataType.
  */
-public class ExpressionGraphGenerator implements ExpressionVisitor, ItemsListVisitor {
+public class ExpressionGraphGenerator extends MetaVertex implements ExpressionVisitor, ItemsListVisitor {
 
     /**
      * Root vertex of the visited expression.
@@ -27,11 +27,21 @@ public class ExpressionGraphGenerator implements ExpressionVisitor, ItemsListVis
      * Data type of the visited expression.
      */
     String dataType;
-
+    
+    
+    public ExpressionGraphGenerator(String label, Graph parentGraph){
+    	super(label);
+    	this.parentGraph = parentGraph;
+    }
+    
+    public ExpressionGraphGenerator(){
+    	super("UNKNOWN");
+    }
 
     @Override
     public void visit(NullValue nullValue) {
         rootVertex = new VertexImpl("NULL");
+        putVertex(rootVertex);
         dataType = "boolean";
     }
 
@@ -40,17 +50,20 @@ public class ExpressionGraphGenerator implements ExpressionVisitor, ItemsListVis
         System.out.println("AAA");
         String name = function.getName().toLowerCase(Locale.ENGLISH);
         rootVertex = new VertexImpl(name);
+        putVertex(rootVertex);
+
         List<Expression> expressionList = new ArrayList<>();
         if (function.getParameters() != null) {
             expressionList = function.getParameters().getExpressions();
         }
         List<String> parameterTypes = new ArrayList<>();
         for (Expression expression : expressionList) {
-            ExpressionGraphGenerator parameterGraphGenerator = new ExpressionGraphGenerator();
+            ExpressionGraphGenerator parameterGraphGenerator = new ExpressionGraphGenerator("FUNC", this.subGraph);
             expression.accept(parameterGraphGenerator);
             String parameterType = parameterGraphGenerator.dataType;
             parameterTypes.add(parameterType);
-            ExpressionEdgeImpl.createEdge("", parameterGraphGenerator.rootVertex, rootVertex, parameterType);
+            putVertex(parameterGraphGenerator);
+            parameterGraphGenerator.putEdge("", parameterGraphGenerator.rootVertex, rootVertex, parameterType);
         }
         dataType = App.getReturnTypeOfFunctionWithParameters(name, parameterTypes);
     }
@@ -59,10 +72,12 @@ public class ExpressionGraphGenerator implements ExpressionVisitor, ItemsListVis
     public void visit(SignedExpression signedExpression) {
         if (signedExpression.getSign() == '-') {
             rootVertex = new VertexImpl("-");
-            ExpressionGraphGenerator expressionGraphGenerator = new ExpressionGraphGenerator();
+            putVertex(rootVertex);
+            ExpressionGraphGenerator expressionGraphGenerator = new ExpressionGraphGenerator("MINUS", this.subGraph);
             signedExpression.getExpression().accept(expressionGraphGenerator);
             dataType = expressionGraphGenerator.dataType;
-            ExpressionEdgeImpl.createEdge("", expressionGraphGenerator.rootVertex, rootVertex, dataType);
+            putVertex(expressionGraphGenerator);
+            expressionGraphGenerator.putEdge("", expressionGraphGenerator.rootVertex, rootVertex, dataType);
         } else {
             signedExpression.getExpression().accept(this);
         }
@@ -81,12 +96,14 @@ public class ExpressionGraphGenerator implements ExpressionVisitor, ItemsListVis
     @Override
     public void visit(DoubleValue doubleValue) {
         rootVertex = new VertexImpl("" + doubleValue.getValue());
+        putVertex(rootVertex);
         dataType = "double precision";
     }
 
     @Override
     public void visit(LongValue longValue) {
         rootVertex = new VertexImpl(longValue.getStringValue());
+        putVertex(rootVertex);
         long value = longValue.getValue();
         if (value >= Integer.MIN_VALUE && value <= Integer.MAX_VALUE) {
             dataType = "integer";
@@ -103,18 +120,21 @@ public class ExpressionGraphGenerator implements ExpressionVisitor, ItemsListVis
     @Override
     public void visit(DateValue dateValue) {
         rootVertex = new VertexImpl(dateValue.getValue().toString());
+        putVertex(rootVertex);
         dataType = "date";
     }
 
     @Override
     public void visit(TimeValue timeValue) {
         rootVertex = new VertexImpl(timeValue.getValue().toString());
+        putVertex(rootVertex);
         dataType = "time";
     }
 
     @Override
     public void visit(TimestampValue timestampValue) {
         rootVertex = new VertexImpl(timestampValue.getValue().toString());
+        putVertex(rootVertex);
         dataType = "timestamp";
     }
 
@@ -127,6 +147,7 @@ public class ExpressionGraphGenerator implements ExpressionVisitor, ItemsListVis
     public void visit(StringValue stringValue) {
         String string = stringValue.getValue();
         rootVertex = new VertexImpl(string);
+        putVertex(rootVertex);
         dataType = "char (" + string.length() + ")";
     }
 
@@ -153,16 +174,21 @@ public class ExpressionGraphGenerator implements ExpressionVisitor, ItemsListVis
     private void visitBinaryMathematicalOperator(BinaryExpression binaryExpression) {
 
         rootVertex = new VertexImpl(binaryExpression.getClass().getSimpleName());
-        ExpressionGraphGenerator leftGraphGenerator = new ExpressionGraphGenerator();
+        putVertex(rootVertex);
+
+        ExpressionGraphGenerator leftGraphGenerator = new ExpressionGraphGenerator("MATH_LEFT", this.subGraph);
         binaryExpression.getLeftExpression().accept(leftGraphGenerator);
-        ExpressionGraphGenerator rightGraphGenerator = new ExpressionGraphGenerator();
+        ExpressionGraphGenerator rightGraphGenerator = new ExpressionGraphGenerator("MATH_RIGHT", this.subGraph);
         binaryExpression.getRightExpression().accept(rightGraphGenerator);
 
         String leftType = leftGraphGenerator.dataType;
         String rightType = rightGraphGenerator.dataType;
 
-        ExpressionEdgeImpl.createEdge("", leftGraphGenerator.rootVertex, rootVertex, leftType);
-        ExpressionEdgeImpl.createEdge("", rightGraphGenerator.rootVertex, rootVertex, rightType);
+        putVertex(leftGraphGenerator);
+        putVertex(rightGraphGenerator);
+
+        leftGraphGenerator.putEdge("", leftGraphGenerator.rootVertex, rootVertex, leftType);
+        rightGraphGenerator.putEdge("", rightGraphGenerator.rootVertex, rootVertex, rightType);
 
         if (ExpressionEdgeImpl.dataSize(rightType) > ExpressionEdgeImpl.dataSize(leftType)) {
             dataType = rightType;
@@ -189,12 +215,19 @@ public class ExpressionGraphGenerator implements ExpressionVisitor, ItemsListVis
             operator = "And";
         }
         rootVertex = new VertexImpl(operator);
-        ExpressionGraphGenerator leftGraphGenerator = new ExpressionGraphGenerator();
+        putVertex(rootVertex);
+        
+        ExpressionGraphGenerator leftGraphGenerator = new ExpressionGraphGenerator("LOGIC_LEFT", this.subGraph);
         binaryExpression.getLeftExpression().accept(leftGraphGenerator);
-        ExpressionGraphGenerator rightGraphGenerator = new ExpressionGraphGenerator();
+        ExpressionGraphGenerator rightGraphGenerator = new ExpressionGraphGenerator("LOGIC_RIGHT", this.subGraph);
         binaryExpression.getRightExpression().accept(rightGraphGenerator);
-        ExpressionEdgeImpl.createEdge("", leftGraphGenerator.rootVertex, rootVertex, leftGraphGenerator.dataType);
-        ExpressionEdgeImpl.createEdge("", rightGraphGenerator.rootVertex, rootVertex, rightGraphGenerator.dataType);
+       
+        putVertex(leftGraphGenerator);
+        putVertex(rightGraphGenerator);
+
+        leftGraphGenerator.putEdge("", leftGraphGenerator.rootVertex, rootVertex, leftGraphGenerator.dataType);
+        rightGraphGenerator.putEdge("", rightGraphGenerator.rootVertex, rootVertex, rightGraphGenerator.dataType);
+        
         dataType = "boolean";
     }
 
@@ -221,15 +254,20 @@ public class ExpressionGraphGenerator implements ExpressionVisitor, ItemsListVis
             operator = "JOIN " + operator;
         }
 
-        ExpressionGraphGenerator leftGraphGenerator = new ExpressionGraphGenerator();
+        ExpressionGraphGenerator leftGraphGenerator = new ExpressionGraphGenerator("JOIN_LEFT", this.subGraph);
         leftExpression.accept(leftGraphGenerator);
 
-        ExpressionGraphGenerator rightGraphGenerator = new ExpressionGraphGenerator();
+        ExpressionGraphGenerator rightGraphGenerator = new ExpressionGraphGenerator("JOIN_RIGHT", this.subGraph);
         rightExpression.accept(rightGraphGenerator);
 
         rootVertex = new VertexImpl(operator);
-        ExpressionEdgeImpl.createEdge("", leftGraphGenerator.rootVertex, rootVertex, leftGraphGenerator.dataType);
-        ExpressionEdgeImpl.createEdge("", rightGraphGenerator.rootVertex, rootVertex, rightGraphGenerator.dataType);
+        putVertex(rootVertex);
+
+        putVertex(leftGraphGenerator);
+        putVertex(rightGraphGenerator);
+
+        leftGraphGenerator.putEdge("", leftGraphGenerator.rootVertex, rootVertex, leftGraphGenerator.dataType);
+        rightGraphGenerator.putEdge("", rightGraphGenerator.rootVertex, rootVertex, rightGraphGenerator.dataType);
         dataType = "boolean";
     }
 
@@ -296,11 +334,19 @@ public class ExpressionGraphGenerator implements ExpressionVisitor, ItemsListVis
         visitBinaryComparisonOperator(notEqualsTo);
     }
 
+    
+    //This is hard
     @Override
     public void visit(Column tableColumn) {
         rootVertex = new VertexImpl(tableColumn.getColumnName().toLowerCase(Locale.ENGLISH));
+    	putVertex(rootVertex);
+
+    	//this.rootVertex = super.rootVertex;
+    	
         String columnName = tableColumn.getColumnName().toLowerCase(Locale.ENGLISH);
         dataType = App.dataTypeOfColumnMap.get(columnName).toString().toLowerCase(Locale.ENGLISH);
+        
+        //putEdge(columnName, rootVertex, sinkVertex, dataType);
     }
 
     @Override
@@ -311,11 +357,14 @@ public class ExpressionGraphGenerator implements ExpressionVisitor, ItemsListVis
     @Override
     public void visit(ExpressionList expressionList) {
         rootVertex = new VertexImpl("values");
+        putVertex(rootVertex);
+
         List<Expression> expressions = expressionList.getExpressions();
         for (Expression expression : expressions) {
-            ExpressionGraphGenerator subGraphGenerator = new ExpressionGraphGenerator();
+            ExpressionGraphGenerator subGraphGenerator = new ExpressionGraphGenerator("EXPR_LIST", this.subGraph);
             expression.accept(subGraphGenerator);
-            ExpressionEdgeImpl.createEdge("", subGraphGenerator.rootVertex, rootVertex, subGraphGenerator.dataType);
+            putVertex(subGraphGenerator);
+            subGraphGenerator.putEdge("", subGraphGenerator.rootVertex, rootVertex, subGraphGenerator.dataType);
         }
         dataType = "list";
     }
@@ -403,6 +452,7 @@ public class ExpressionGraphGenerator implements ExpressionVisitor, ItemsListVis
     @Override
     public void visit(IntervalExpression iexpr) {
         rootVertex = new VertexImpl(iexpr.toString());
+        putVertex(rootVertex);
         dataType = "interval";
     }
 
