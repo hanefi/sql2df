@@ -150,33 +150,95 @@ public class MetaVertex extends Vertex {
 		Vertex inputsVertex = rootVertex;
 		List<ExpressionEdgeImpl> inputEdges = inputsVertex.getOutgoingEdges();
 		
-		for(int i = 0; i < inputEdges.size(); i++)
+		for(int i = inputEdges.size()-1; i >= 0; i--){
+			Boolean isRemoved = false;
 			for(int j = incomingEdges.size()-1; j >= 0; j--){
-				if(inputEdges.get(i).id == incomingEdges.get(j).id){
-					incomingEdges.get(j).setDestinationVertex(inputEdges.get(i).getDestinationVertex());
-					inputEdges.get(i).getDestinationVertex().removeIncomingEdge(inputEdges.get(i));
-					subGraph.edges.remove(inputEdges.get(i));
-					break;
+				ExpressionEdgeImpl inputEdge = inputEdges.get(i);
+				ExpressionEdgeImpl incomingEdge = incomingEdges.get(j);
+				Boolean nameEqualsCondition = inputEdge.edgeName.length()>0 && incomingEdge.edgeName.length()>0 
+						&& inputEdge.edgeName.equals(incomingEdge.edgeName);
+				Boolean idEqualsCondition = inputEdge.id == incomingEdge.id;
+				if(nameEqualsCondition || idEqualsCondition){
+					ExpressionEdgeImpl newEdge = ExpressionEdgeImpl.createEdge(incomingEdge.edgeName, 
+							incomingEdge.getSourceVertex(), inputEdge.getDestinationVertex(), incomingEdge.dataType);
+					//parentGraph.removeEdge(incomingEdge);
+					parentGraph.edges.add(newEdge);
+					//incomingEdges.get(j).setDestinationVertex(inputEdges.get(i).getDestinationVertex());
+					isRemoved = true;
+					//break;
 				}
 			}
+			if(isRemoved){
+				inputEdges.get(i).getDestinationVertex().removeIncomingEdge(inputEdges.get(i));
+				subGraph.edges.remove(inputEdges.get(i));
+			}
+		}
+
 		Vertex outputsVertex = sinkVertex;
 		List<ExpressionEdgeImpl> outputEdges = outputsVertex.getIncomingEdges();
 
-		for(int i = 0; i < outputEdges.size(); i++)
+		for(int i = outputEdges.size()-1 ; i >= 0; i--){
+			Boolean isRemoved = false;
 			for(int j = outgoingEdges.size()-1; j >= 0 ; j--){
-				if(outputEdges.get(i).id == outgoingEdges.get(j).id){
-					outgoingEdges.get(j).setSourceVertex(outputEdges.get(i).getSourceVertex());
-					outputEdges.get(i).getSourceVertex().removeOutgoingEdge(outputEdges.get(i));
-					subGraph.edges.remove(outputEdges.get(i));
-					break;
+				ExpressionEdgeImpl outputEdge = outputEdges.get(i);
+				ExpressionEdgeImpl outgoingEdge = outgoingEdges.get(j);
+				Boolean nameEqualsCondition = outputEdge.edgeName.length()>0 && outgoingEdge.edgeName.length()>0 
+						&& outputEdge.edgeName.equals(outgoingEdge.edgeName);
+				Boolean idEqualsCondition = outputEdge.id == outgoingEdge.id;
+				if(nameEqualsCondition || idEqualsCondition){
+					ExpressionEdgeImpl newEdge = ExpressionEdgeImpl.createEdge(outgoingEdge.edgeName, 
+							outputEdge.getSourceVertex(), outgoingEdge.getDestinationVertex(), outgoingEdge.dataType);
+					//parentGraph.removeEdge(outgoingEdge);
+					parentGraph.edges.add(newEdge);
+					//outgoingEdges.get(j).setSourceVertex(outputEdges.get(i).getSourceVertex());
+					isRemoved = true;
+					//break;
 				}
 			}
+			if(isRemoved){
+				outputEdges.get(i).getSourceVertex().removeOutgoingEdge(outputEdges.get(i));
+				subGraph.edges.remove(outputEdges.get(i));
+			}
+
+		}
+		
+		for(int j = incomingEdges.size()-1; j >= 0; j--){
+			parentGraph.removeEdge(incomingEdges.get(j));
+		}
+		for(int j = outgoingEdges.size()-1; j >= 0; j--){
+			parentGraph.removeEdge(outgoingEdges.get(j));
+		}
+		
 		
 		parentGraph.vertices.remove(this.toString());
 		parentGraph.vertices.putAll(subGraph.vertices);
 		parentGraph.edges.addAll(subGraph.edges);
 		
 		parentGraph = null;
+	}
+	
+	public void createIncomingConnections(Vertex vertex){
+		Vertex inputsVertex = rootVertex;
+		List<ExpressionEdgeImpl> inputEdges = inputsVertex.getOutgoingEdges();
+		for(int i = inputEdges.size()-1; i >= 0; i--){
+			ExpressionEdgeImpl inputEdge = inputEdges.get(i);
+			Boolean matches = false;
+			for(int j = incomingEdges.size()-1; j >= 0; j--){
+				ExpressionEdgeImpl incomingEdge = incomingEdges.get(j);
+				Boolean nameEqualsCondition = inputEdge.edgeName.length()>0 && incomingEdge.edgeName.length()>0 
+						&& inputEdge.edgeName.equals(incomingEdge.edgeName);
+				Boolean idEqualsCondition = inputEdge.id == incomingEdge.id;
+				if(nameEqualsCondition || idEqualsCondition){
+					matches = true;
+					break;
+				}
+			}
+			if(!matches){
+				ExpressionEdgeImpl newEdge = ExpressionEdgeImpl.createEdge(inputEdge.edgeName, 
+						vertex, this, inputEdge.dataType, inputEdge.id);
+				parentGraph.edges.add(newEdge);
+			}
+		}
 	}
 	
 	
@@ -257,7 +319,10 @@ public class MetaVertex extends Vertex {
 			Vertex v = subGraph.vertices.get(s);
 			if( v != rootVertex && v.getIncomingEdges().isEmpty())
 				for(ExpressionEdgeImpl e : v.getOutgoingEdges()){
-					putEdge(v.vertexName, rootVertex, e.getDestinationVertex(), e.dataType);
+					String edgeName = v.vertexName;
+					if(e.edgeName.length() > 0)
+						edgeName = e.edgeName;
+					putEdge(edgeName, rootVertex, e.getDestinationVertex(), e.dataType);
 					subGraph.removeEdge(e);
 				}
 			toRemove.add(s);

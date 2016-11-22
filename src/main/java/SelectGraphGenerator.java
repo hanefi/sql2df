@@ -45,7 +45,7 @@ public class SelectGraphGenerator implements SelectItemVisitor{
         selectExpressionItem.getExpression().accept(expressionGraphGenerator);
         String name = "";
         if (selectExpressionItem.getAlias() != null) {
-            name = selectExpressionItem.getAlias().toString().toLowerCase(Locale.ENGLISH);
+            name = selectExpressionItem.getAlias().getName();
         }
         metaVertex.putVertex(expressionGraphGenerator);
         expressionGraphGenerator.putEdge(name, expressionGraphGenerator.rootVertex, metaVertex.sinkVertex, expressionGraphGenerator.dataType);		

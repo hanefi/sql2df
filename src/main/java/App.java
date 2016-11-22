@@ -62,7 +62,7 @@ public class App {
             String columnDataType = dataTypeOfColumnMap.get(selectColumn).toString().toLowerCase(Locale.ENGLISH);
             metaVertex.subGraph.edges.add(ExpressionEdgeImpl.createEdge(selectColumn, metaVertex.rootVertex , selectVertex, columnDataType));
             expressionGraphGenerator.putEdge("", expressionGraphGenerator.rootVertex, selectVertex, "boolean");
-            metaVertex.subGraph.edges.add(ExpressionEdgeImpl.createEdge(selectColumn + "'", selectVertex, metaVertex.sinkVertex, columnDataType));
+            metaVertex.subGraph.edges.add(ExpressionEdgeImpl.createEdge(selectColumn, selectVertex, metaVertex.sinkVertex, columnDataType));
         }
         
         metaVertex.collapseChildren();
@@ -264,26 +264,28 @@ public class App {
         Map<String, Vertex> lastVertexOfColumn = new HashMap<>();   // Keeps the Vertex that used a column last.
 
         Graph graph = new Graph();
-        
+        MetaVertex filterVertex = new MetaVertex("UNKNOWN");;
+        MetaVertex selectVertex = new MetaVertex("UNKNOWN");
+        Vertex constantVertex = new VertexImpl("CONSTANT"); 
+
         if (selectBody instanceof PlainSelect) {
             PlainSelect plainSelect = (PlainSelect) selectBody;
             //System.out.println("Plain Select Body: " + plainSelect); //DEBUG
             System.out.println("Before generating SELECT Graph"); //DEBUG
            
-            MetaVertex selectVertex = generateSelectGraph(plainSelect);   // Generates the SELECT sub-graph of the query.
+            selectVertex = generateSelectGraph(plainSelect);   // Generates the SELECT sub-graph of the query.
+            selectVertex.parentGraph = graph;
             graph.putVertex(selectVertex);
-            generateGraphFile(selectVertex.subGraph, new File(queryName + ".select.dot"));
-
             
             System.out.println("Before generating WHERE clause"); //DEBUG
             Expression expression = plainSelect.getWhere(); // WHERE clause of the SELECT query.
             //System.out.println("WHERE Clause: " + expression); //DEBUG
             if (expression != null) {
                 System.out.println("Before generating FILTER Graph"); //DEBUG
-                MetaVertex filterVertex = generateFilterGraph(expression, selectColumns); // Generates the FILTER sub-graph of the query.
+                filterVertex = generateFilterGraph(expression, selectColumns); // Generates the FILTER sub-graph of the query.
+                filterVertex.parentGraph = graph;
                 graph.putVertex(filterVertex);
                 //Vertex filterVertex = new VertexImpl("FILTER"); // Creates the FILTER node in the high level graph.
-                generateGraphFile(filterVertex.subGraph, new File(queryName + ".filter.dot"));
                 // Connects each column edge from their tables to FILTER node.
                 for (String column : allColumns) {
                     String table = tableOfColumnMap.get(column);
@@ -391,9 +393,18 @@ public class App {
                 }
             }
         }
-
+        filterVertex.createIncomingConnections(constantVertex);
+        selectVertex.createIncomingConnections(constantVertex);
+        
+        //filterVertex.mergeWithParent();
+        //selectVertex.mergeWithParent();
         // All graphs are printed to files
+
+
         generateGraphFile(graph, new File(queryName + ".dot"));
+        generateGraphFile(selectVertex.subGraph, new File(queryName + ".select.dot"));
+        generateGraphFile(filterVertex.subGraph, new File(queryName + ".filter.dot"));
+
     }
 
 
