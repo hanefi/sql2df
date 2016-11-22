@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
  */
 public class VertexImpl extends Vertex {
 
-	private String vertexName;
+	//private String vertexName;
 	private int id;
 	private static int cnt = 0;
 

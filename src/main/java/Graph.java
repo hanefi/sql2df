@@ -25,6 +25,12 @@ public class Graph {
         return vertices.get(vertexString);
     }
     
+    public void removeEdge(ExpressionEdgeImpl e){
+    	e.getSourceVertex().getOutgoingEdges().remove(e);
+    	e.getDestinationVertex().getIncomingEdges().remove(e);
+    	edges.remove(e);
+    }
+    
     
     @Override
     public String toString() {

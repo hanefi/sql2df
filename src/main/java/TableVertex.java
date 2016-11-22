@@ -11,12 +11,12 @@ import java.util.regex.Pattern;
  */
 public class TableVertex extends Vertex {
 	
-	private String tableName;
+	//private String tableName;
 	private static Map<String, TableVertex> tableVertexMap = new HashMap<>();
 	
 
 	public TableVertex(String tableName) {
-		this.tableName = tableName;
+		this.vertexName = tableName;
 	}
 	
 	public TableVertex(String tableName, int id) {
@@ -26,7 +26,7 @@ public class TableVertex extends Vertex {
 
 	@Override
 	public String toString() {
-		return "table: " + tableName;
+		return "table: " + vertexName;
 	}
 	
     /**

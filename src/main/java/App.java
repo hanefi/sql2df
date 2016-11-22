@@ -65,9 +65,10 @@ public class App {
             metaVertex.subGraph.edges.add(ExpressionEdgeImpl.createEdge(selectColumn + "'", selectVertex, metaVertex.sinkVertex, columnDataType));
         }
         
-        System.out.println("Printing Subgraph"); //DEBUG
         metaVertex.collapseChildren();
-        System.out.println(metaVertex.subGraph);
+        metaVertex.edgifySources();
+        System.out.println("Printing Subgraph"); //DEBUG
+        System.out.println(metaVertex.subGraph); //DEBUG
     }
 
 

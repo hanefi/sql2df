@@ -251,6 +251,22 @@ public class MetaVertex extends Vertex {
 		}
 	}
 	
+	public void edgifySources(){
+		List<String> toRemove = new LinkedList<>();
+		for(String s : subGraph.vertices.keySet()){
+			Vertex v = subGraph.vertices.get(s);
+			if( v != rootVertex && v.getIncomingEdges().isEmpty())
+				for(ExpressionEdgeImpl e : v.getOutgoingEdges()){
+					putEdge(v.vertexName, rootVertex, e.getDestinationVertex(), e.dataType);
+					subGraph.removeEdge(e);
+				}
+			toRemove.add(s);
+		}
+		for(String s : toRemove)
+			subGraph.vertices.remove(s);
+			
+	}
+	
 	public String getSubGraph(){
 		return subGraph.toString();
 	}
