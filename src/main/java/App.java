@@ -39,7 +39,7 @@ public class App {
      * @param filterExpression Expression that is used in filtering, WHERE clause of the query.
      * @param selectColumns Columns that are used in SELECT clause of the query.
      */
-    public static void generateFilterGraph(Expression filterExpression, Set<String> selectColumns) {
+    public static MetaVertex generateFilterGraph(Expression filterExpression, Set<String> selectColumns) {
         // Generates a sub-graph with one boolean filter output.
         MetaVertex metaVertex = new MetaVertex("FILTER_SUBGRAPH");
     	ExpressionGraphGenerator expressionGraphGenerator = new ExpressionGraphGenerator("FILTER_QUERY", metaVertex.subGraph);
@@ -69,6 +69,7 @@ public class App {
         metaVertex.edgifySources();
         System.out.println("Printing FILTER Subgraph"); //DEBUG
         System.out.println(metaVertex.subGraph); //DEBUG
+        return metaVertex;
     }
 
 
@@ -76,22 +77,21 @@ public class App {
      * Generates the select sub-graph.
      * @param plainSelect Body of a plain select query
      */
-    public static void generateSelectGraph(PlainSelect plainSelect) {
+    public static MetaVertex generateSelectGraph(PlainSelect plainSelect) {
        // Vertex endVertex = new VertexImpl("END_SELECT");    // Creates a dummy END vertex to connect all produced data.
-        MetaVertex metaVertex = new MetaVertex("FILTER_SUBGRAPH");
+        MetaVertex metaVertex = new MetaVertex("SELECT_SUBGRAPH");
 
         // A data-flow graph whose root is connected to the dummy END vertex is generated for each select item.
         for (SelectItem selectItem : plainSelect.getSelectItems()) {
-        	System.out.println("HELLOOO "+selectItem); //DEBUG
+        	//System.out.println("HELLOOO "+selectItem); //DEBUG
         	SelectGraphGenerator selectGraphGenerator = new SelectGraphGenerator(metaVertex);
         	selectItem.accept(selectGraphGenerator);
         }
         metaVertex.collapseChildren();
         metaVertex.edgifySources();
         System.out.println("Printing SELECT Subgraph"); //DEBUG
-        //for(Vertex v : metaVertex.subGraph.vertices.values())
-        //	System.out.println(v);
         System.out.println(metaVertex.subGraph); //DEBUG
+        return metaVertex;
     }
 
 
@@ -263,26 +263,33 @@ public class App {
 
         Map<String, Vertex> lastVertexOfColumn = new HashMap<>();   // Keeps the Vertex that used a column last.
 
+        Graph graph = new Graph();
+        
         if (selectBody instanceof PlainSelect) {
             PlainSelect plainSelect = (PlainSelect) selectBody;
             //System.out.println("Plain Select Body: " + plainSelect); //DEBUG
             System.out.println("Before generating SELECT Graph"); //DEBUG
-            generateSelectGraph(plainSelect);   // Generates the SELECT sub-graph of the query.
+           
+            MetaVertex selectVertex = generateSelectGraph(plainSelect);   // Generates the SELECT sub-graph of the query.
+            graph.putVertex(selectVertex);
+            generateGraphFile(selectVertex.subGraph, new File(queryName + ".select.dot"));
 
+            
             System.out.println("Before generating WHERE clause"); //DEBUG
             Expression expression = plainSelect.getWhere(); // WHERE clause of the SELECT query.
             //System.out.println("WHERE Clause: " + expression); //DEBUG
             if (expression != null) {
                 System.out.println("Before generating FILTER Graph"); //DEBUG
-                generateFilterGraph(expression, selectColumns); // Generates the FILTER sub-graph of the query.
-
-                Vertex filterVertex = new VertexImpl("FILTER"); // Creates the FILTER node in the high level graph.
-
+                MetaVertex filterVertex = generateFilterGraph(expression, selectColumns); // Generates the FILTER sub-graph of the query.
+                graph.putVertex(filterVertex);
+                //Vertex filterVertex = new VertexImpl("FILTER"); // Creates the FILTER node in the high level graph.
+                generateGraphFile(filterVertex.subGraph, new File(queryName + ".filter.dot"));
                 // Connects each column edge from their tables to FILTER node.
                 for (String column : allColumns) {
                     String table = tableOfColumnMap.get(column);
                     String dataType = dataTypeOfColumnMap.get(column);
-                    EdgeImpl.createEdge(column, TableVertex.getTableVertex(table), filterVertex, dataType);
+                    ExpressionEdgeImpl edge = ExpressionEdgeImpl.createEdge(column, TableVertex.getTableVertex(table), filterVertex, dataType);
+                    graph.edges.add(edge);
                     lastVertexOfColumn.put(column, filterVertex);
                 }
             }
@@ -290,18 +297,19 @@ public class App {
             List<Expression> groupByColumns = plainSelect.getGroupByColumnReferences(); // Columns used for grouping
             if (groupByColumns != null) {
                 Vertex groupVertex = new VertexImpl("GROUP");   // Creates the GROUP node in the high level graph.
-
+                graph.putVertex(groupVertex);
                 // Connects each column that is used for grouping from their last vertex to GROUP vertex.
                 for (Expression groupByColumn : groupByColumns) {
                     String columnName = groupByColumn.toString().toLowerCase(Locale.ENGLISH);
                     String dataType = getDataType(groupByColumn);
                     Vertex lastVertex = lastVertexOfColumn.get(columnName);
-                    EdgeImpl.createEdge(columnName, lastVertex, groupVertex, dataType);
+                    ExpressionEdgeImpl edge = ExpressionEdgeImpl.createEdge(columnName, lastVertex, groupVertex, dataType);
+                    graph.edges.add(edge);
                     lastVertexOfColumn.put(columnName, groupVertex);
                 }
             }
 
-            Vertex selectVertex = new VertexImpl("SELECT"); // Creates the SELECT node in the high level graph.
+            //Vertex selectVertex = new VertexImpl("SELECT"); // Creates the SELECT node in the high level graph.
 
             // Connects each column that is used in SELECT clause from their last vertex to SELECT vertex.
             for (String column : selectColumns) {
@@ -309,11 +317,14 @@ public class App {
                 String dataType = dataTypeOfColumnMap.get(column);
                 Vertex lastVertex = lastVertexOfColumn.get(column);
                 //System.out.println("Column info: "+ dataType + " " + lastVertex); //DEBUG
-                if(lastVertex != null)
-                    EdgeImpl.createEdge(column, lastVertex, selectVertex, dataType);
+                if(lastVertex != null){
+                	ExpressionEdgeImpl edge = ExpressionEdgeImpl.createEdge(column, lastVertex, selectVertex, dataType);
+                    graph.edges.add(edge);
+                }
                 else{
                     String table = tableOfColumnMap.get(column);
-                    EdgeImpl.createEdge(column, TableVertex.getTableVertex(table), selectVertex, dataType);
+                    ExpressionEdgeImpl edge = ExpressionEdgeImpl.createEdge(column, TableVertex.getTableVertex(table), selectVertex, dataType);
+                    graph.edges.add(edge);
                 }
                 lastVertexOfColumn.put(column, selectVertex);
             }
@@ -341,14 +352,15 @@ public class App {
             List<OrderByElement> orderByColumns = plainSelect.getOrderByElements(); // Columns used in ordering
             if (orderByColumns != null) {
                 Vertex orderVertex = new VertexImpl("ORDER");   // Creates the ORDER vertex.
-
+                graph.putVertex(orderVertex);
                 // Connects each column used for ordering from their last vertex to ORDER vertex.
                 for (OrderByElement orderByColumn : orderByColumns) {
                     Expression orderByExpression = orderByColumn.getExpression();
                     String columnName = orderByExpression.toString().toLowerCase(Locale.ENGLISH);
                     String dataType = getDataType(orderByExpression);
                     Vertex lastVertex = lastVertexOfColumn.get(columnName);
-                    EdgeImpl.createEdge(columnName, lastVertex, orderVertex, dataType);
+                    ExpressionEdgeImpl edge = ExpressionEdgeImpl.createEdge(columnName, lastVertex, orderVertex, dataType);
+                    graph.edges.add(edge);
                     lastVertexOfColumn.put(columnName, orderVertex);
                 }
 
@@ -371,7 +383,8 @@ public class App {
 
                         if (lastVertex != orderVertex) {
                             String dataType = getDataType(selectExpressionItem.getExpression());
-                            EdgeImpl.createEdge(name, selectVertex, orderVertex, dataType);
+                            ExpressionEdgeImpl edge = ExpressionEdgeImpl.createEdge(name, selectVertex, orderVertex, dataType);
+                            graph.edges.add(edge);
                             lastVertexOfColumn.put(name, orderVertex);
                         }
                     }
@@ -380,8 +393,7 @@ public class App {
         }
 
         // All graphs are printed to files
-        generateGraphFile(new File(queryName + ".dot"));
-        generateSubGraphsFile(new File(queryName + ".filter.dot"));
+        generateGraphFile(graph, new File(queryName + ".dot"));
     }
 
 
@@ -392,10 +404,10 @@ public class App {
      * @param file File to which graph will be printed.
      * @throws FileNotFoundException
      */
-    public static void generateGraphFile(File file) throws FileNotFoundException {
+    public static void generateGraphFile(Graph graph, File file) throws FileNotFoundException {
         PrintStream stream = new PrintStream(file);
         stream.println("digraph {");
-        for (Edge edge : EdgeImpl.edgeList) {
+        for (Edge edge : graph.edges) {
              System.out.println(edge+ " "+ edge.getSourceVertex());
             stream.println('"' + edge.getSourceVertex().toString() + '"' + " -> " + '"'
                     + edge.getDestinationVertex().toString() + '"' + "[label=\"" + edge.toString() + "\"]");

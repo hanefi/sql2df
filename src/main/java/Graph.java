@@ -31,6 +31,9 @@ public class Graph {
     	edges.remove(e);
     }
     
+	public void putVertex(Vertex vertex){
+		vertices.put(vertex.toString(), vertex);
+	}
     
     @Override
     public String toString() {
