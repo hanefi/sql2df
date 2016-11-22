@@ -46,7 +46,7 @@ public class App {
         filterExpression.accept(expressionGraphGenerator);
         //Vertex filterRootVertex = expressionGraphGenerator.rootVertex;
        
-        metaVertex.subGraph.vertices.put(expressionGraphGenerator.toString(), expressionGraphGenerator);
+        metaVertex.putVertex(expressionGraphGenerator);
         
         //Vertex endVertex = new VertexImpl("END_FILTER");    // Creates a dummy END vertex to connect all filtered columns.
         //metaVertex.putVertex(endVertex);
@@ -67,7 +67,7 @@ public class App {
         
         metaVertex.collapseChildren();
         metaVertex.edgifySources();
-        System.out.println("Printing Subgraph"); //DEBUG
+        System.out.println("Printing FILTER Subgraph"); //DEBUG
         System.out.println(metaVertex.subGraph); //DEBUG
     }
 
@@ -77,13 +77,21 @@ public class App {
      * @param plainSelect Body of a plain select query
      */
     public static void generateSelectGraph(PlainSelect plainSelect) {
-        Vertex endVertex = new VertexImpl("END_SELECT");    // Creates a dummy END vertex to connect all produced data.
+       // Vertex endVertex = new VertexImpl("END_SELECT");    // Creates a dummy END vertex to connect all produced data.
+        MetaVertex metaVertex = new MetaVertex("FILTER_SUBGRAPH");
 
         // A data-flow graph whose root is connected to the dummy END vertex is generated for each select item.
         for (SelectItem selectItem : plainSelect.getSelectItems()) {
-            SelectGraphGenerator selectGraphGenerator = new SelectGraphGenerator(endVertex);
-            selectItem.accept(selectGraphGenerator);
+        	System.out.println("HELLOOO "+selectItem); //DEBUG
+        	SelectGraphGenerator selectGraphGenerator = new SelectGraphGenerator(metaVertex);
+        	selectItem.accept(selectGraphGenerator);
         }
+        metaVertex.collapseChildren();
+        metaVertex.edgifySources();
+        System.out.println("Printing SELECT Subgraph"); //DEBUG
+        //for(Vertex v : metaVertex.subGraph.vertices.values())
+        //	System.out.println(v);
+        System.out.println(metaVertex.subGraph); //DEBUG
     }
 
 
@@ -96,6 +104,7 @@ public class App {
     public static String getReturnTypeOfFunctionWithParameters(String name, List<String> parameters) {
         // Searches given function in the defined functions list.
         for (FunctionDef functionDef : functionDefs) {
+        	//System.out.println("Function name: "+name + " " +functionDef); //DEBUG
             if (functionDef.name.equals(name)) {
                 if (functionDef.parameters.equals(parameters)) {
                     return functionDef.returnType;
@@ -131,7 +140,7 @@ public class App {
 
         // Extracts table schemas from each CREATE TABLE query.
         for (String query : createQueries) {
-            System.out.println("The table create query is: " + query); //DEBUG
+            //System.out.println("The table create query is: " + query); //DEBUG
             learnTableSchema(query);
         }
 
@@ -153,7 +162,7 @@ public class App {
      */
     public static void readFunctions() throws FileNotFoundException {
         try {
-        	  Stream<Path> stream = Files.walk(Paths.get("res/data-types"));
+        	  Stream<Path> stream = Files.walk(Paths.get("res/function-declarations"));
               Iterator<Path> iterator = stream.iterator();
               while(iterator.hasNext())
               {
@@ -211,7 +220,7 @@ public class App {
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
             String[] tokens = line.split(",");
-            System.out.println(Arrays.asList(tokens));
+            System.out.println("FUNCTION: "+Arrays.asList(tokens));
             String functionName = tokens[0];
             String parameter = tokens[1];
             String result = tokens[2];
@@ -241,7 +250,7 @@ public class App {
         Select select = (Select) CCJSqlParserUtil.parse(selectQuery);   // Parses a SELECT query.
         SelectBody selectBody = select.getSelectBody();
 
-        System.out.println("Processing query: " + selectQuery); //DEBUG
+        //System.out.println("Processing query: " + selectQuery); //DEBUG
 
         Set<String> tables = extractTables(selectBody); // Extracts table names from the SELECT query.
 
@@ -256,13 +265,13 @@ public class App {
 
         if (selectBody instanceof PlainSelect) {
             PlainSelect plainSelect = (PlainSelect) selectBody;
-            System.out.println("Plain Select Body: " + plainSelect); //DEBUG
+            //System.out.println("Plain Select Body: " + plainSelect); //DEBUG
             System.out.println("Before generating SELECT Graph"); //DEBUG
             generateSelectGraph(plainSelect);   // Generates the SELECT sub-graph of the query.
 
             System.out.println("Before generating WHERE clause"); //DEBUG
             Expression expression = plainSelect.getWhere(); // WHERE clause of the SELECT query.
-            System.out.println("WHERE Clause: " + expression); //DEBUG
+            //System.out.println("WHERE Clause: " + expression); //DEBUG
             if (expression != null) {
                 System.out.println("Before generating FILTER Graph"); //DEBUG
                 generateFilterGraph(expression, selectColumns); // Generates the FILTER sub-graph of the query.
@@ -296,10 +305,10 @@ public class App {
 
             // Connects each column that is used in SELECT clause from their last vertex to SELECT vertex.
             for (String column : selectColumns) {
-                System.out.println("Connecting column " + column + " to select vertex"); //DEBUG
+                //System.out.println("Connecting column " + column + " to select vertex"); //DEBUG
                 String dataType = dataTypeOfColumnMap.get(column);
                 Vertex lastVertex = lastVertexOfColumn.get(column);
-                System.out.println("Column info: "+ dataType + " " + lastVertex); //DEBUG
+                //System.out.println("Column info: "+ dataType + " " + lastVertex); //DEBUG
                 if(lastVertex != null)
                     EdgeImpl.createEdge(column, lastVertex, selectVertex, dataType);
                 else{
@@ -536,14 +545,14 @@ public class App {
 
         String tableName = createTable.getTable().getName().toLowerCase(Locale.ENGLISH);
 
-        System.out.println("In table:" + tableName); //DEBUG
+        //System.out.println("In table:" + tableName); //DEBUG
 
         Set<String> columns = new HashSet<>();
 
         for (ColumnDefinition columnDefinition : createTable.getColumnDefinitions()) {
             String columnName = columnDefinition.getColumnName().toLowerCase(Locale.ENGLISH);
             ColDataType dataType = columnDefinition.getColDataType();
-            System.out.println(tableName + " " + columnName + " " + dataType ); //DEBUG:
+            //System.out.println(tableName + " " + columnName + " " + dataType ); //DEBUG:
             tableOfColumnMap.put(columnName, tableName);
             dataTypeOfColumnMap.put(columnName, dataType.toString().toLowerCase(Locale.ENGLISH));
             columns.add(columnName);

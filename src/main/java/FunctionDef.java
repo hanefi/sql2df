@@ -52,4 +52,9 @@ public class FunctionDef {
         result = 31 * result + parameters.hashCode();
         return result;
     }
+    
+    @Override
+    public String toString(){
+    	return "Function: "+name+" "+returnType+" "+parameters;
+    }
 }

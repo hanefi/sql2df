@@ -22,7 +22,7 @@ public class ExpressionGraphGenerator extends MetaVertex implements ExpressionVi
     /**
      * Root vertex of the visited expression.
      */
-    Vertex rootVertex;
+    //Vertex rootVertex;
     /**
      * Data type of the visited expression.
      */

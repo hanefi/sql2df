@@ -10,16 +10,24 @@ import java.util.Locale;
  * Creates a sub-graph for visited select item.
  * This sub-graph is connected to the dummy END node provided in the constructor.
  */
-public class SelectGraphGenerator implements SelectItemVisitor {
-    private Vertex endVertex;
-
+public class SelectGraphGenerator implements SelectItemVisitor{
+    //private Vertex endVertex;
+	MetaVertex metaVertex;
     /**
      * Creates a SelectItemVisitor that can be used to generate a select sub-graph that is connected to the dummy END node.
      * @param endVertex Dummy end node
      */
-    public SelectGraphGenerator(Vertex endVertex) {
-        this.endVertex = endVertex;
+    public SelectGraphGenerator(MetaVertex metaVertex){
+    	this.metaVertex = metaVertex;
     }
+    
+   // public SelectGraphGenerator(){
+   // 	super("UNKNOWN");
+   // }
+	
+	//public SelectGraphGenerator(Vertex endVertex) {
+    //    this.endVertex = endVertex;
+    //}
 
     @Override
     public void visit(AllColumns allColumns) {
@@ -33,12 +41,14 @@ public class SelectGraphGenerator implements SelectItemVisitor {
 
     @Override
     public void visit(SelectExpressionItem selectExpressionItem) {
-        ExpressionGraphGenerator expressionGraphGenerator = new ExpressionGraphGenerator();
+        ExpressionGraphGenerator expressionGraphGenerator = new ExpressionGraphGenerator("SELECT_META", metaVertex.subGraph);
         selectExpressionItem.getExpression().accept(expressionGraphGenerator);
         String name = "";
         if (selectExpressionItem.getAlias() != null) {
             name = selectExpressionItem.getAlias().toString().toLowerCase(Locale.ENGLISH);
         }
-        ExpressionEdgeImpl.createEdge(name, expressionGraphGenerator.rootVertex, endVertex, expressionGraphGenerator.dataType);
+        metaVertex.putVertex(expressionGraphGenerator);
+        expressionGraphGenerator.putEdge(name, expressionGraphGenerator.rootVertex, metaVertex.sinkVertex, expressionGraphGenerator.dataType);		
+        //Should be to SINK
     }
 }
