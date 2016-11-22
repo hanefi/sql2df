@@ -10,8 +10,8 @@ import java.util.Queue;
 
 public class MetaVertex extends Vertex {
 	
-	public static final String ROOT = "table: INPUTS";
-	public static final String SINK = "table: OUTPUTS";
+	public static final String ROOT = "INPUTS";
+	public static final String SINK = "OUTPUTS";
 	private static int metaCnt = 0;
 	
 	
