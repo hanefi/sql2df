@@ -149,6 +149,10 @@ public class MetaVertex extends Vertex {
 		
 		Vertex inputsVertex = rootVertex;
 		List<ExpressionEdgeImpl> inputEdges = inputsVertex.getOutgoingEdges();
+
+		Vertex outputsVertex = sinkVertex;
+		List<ExpressionEdgeImpl> outputEdges = outputsVertex.getIncomingEdges();
+		
 		
 		for(int i = inputEdges.size()-1; i >= 0; i--){
 			Boolean isRemoved = false;
@@ -161,11 +165,10 @@ public class MetaVertex extends Vertex {
 				if(nameEqualsCondition || idEqualsCondition){
 					ExpressionEdgeImpl newEdge = ExpressionEdgeImpl.createEdge(incomingEdge.edgeName, 
 							incomingEdge.getSourceVertex(), inputEdge.getDestinationVertex(), incomingEdge.dataType);
-					//parentGraph.removeEdge(incomingEdge);
-					parentGraph.edges.add(newEdge);
-					//incomingEdges.get(j).setDestinationVertex(inputEdges.get(i).getDestinationVertex());
+					if(inputEdge.getDestinationVertex() != sinkVertex){
+						parentGraph.edges.add(newEdge);
+					}
 					isRemoved = true;
-					//break;
 				}
 			}
 			if(isRemoved){
@@ -174,8 +177,6 @@ public class MetaVertex extends Vertex {
 			}
 		}
 
-		Vertex outputsVertex = sinkVertex;
-		List<ExpressionEdgeImpl> outputEdges = outputsVertex.getIncomingEdges();
 
 		for(int i = outputEdges.size()-1 ; i >= 0; i--){
 			Boolean isRemoved = false;
@@ -188,11 +189,8 @@ public class MetaVertex extends Vertex {
 				if(nameEqualsCondition || idEqualsCondition){
 					ExpressionEdgeImpl newEdge = ExpressionEdgeImpl.createEdge(outgoingEdge.edgeName, 
 							outputEdge.getSourceVertex(), outgoingEdge.getDestinationVertex(), outgoingEdge.dataType);
-					//parentGraph.removeEdge(outgoingEdge);
 					parentGraph.edges.add(newEdge);
-					//outgoingEdges.get(j).setSourceVertex(outputEdges.get(i).getSourceVertex());
 					isRemoved = true;
-					//break;
 				}
 			}
 			if(isRemoved){
@@ -208,6 +206,7 @@ public class MetaVertex extends Vertex {
 		for(int j = outgoingEdges.size()-1; j >= 0; j--){
 			parentGraph.removeEdge(outgoingEdges.get(j));
 		}
+
 		
 		
 		parentGraph.vertices.remove(this.toString());
