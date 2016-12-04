@@ -396,8 +396,8 @@ public class App {
         filterVertex.createIncomingConnections(constantVertex);
         selectVertex.createIncomingConnections(constantVertex);
         
-        //filterVertex.mergeWithParent();
-        //selectVertex.mergeWithParent();
+        filterVertex.mergeWithParent();
+        selectVertex.mergeWithParent();
         // All graphs are printed to files
 
 
