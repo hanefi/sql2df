@@ -44,6 +44,10 @@ public class Graph {
             output += '"' + edge.getSourceVertex().toString() + '"' + " -> " + '"'
                     + edge.getDestinationVertex().toString() + '"' + "[label=\"" + edge.toString() + "\"]\n";
         }
+        for(Vertex v : vertices.values()){
+        	  output += '"' + v.toString() + '"' + " -> " + '"'
+                      + v.toString() + '"' + "[label=\"TEST\"]\n";
+        }
         output += "}\n";
         return output;
     }

@@ -80,11 +80,11 @@ public class App {
     public static MetaVertex generateSelectGraph(PlainSelect plainSelect) {
        // Vertex endVertex = new VertexImpl("END_SELECT");    // Creates a dummy END vertex to connect all produced data.
         MetaVertex metaVertex = new MetaVertex("SELECT_SUBGRAPH");
-
+        System.out.println(plainSelect.getFromItem());
         // A data-flow graph whose root is connected to the dummy END vertex is generated for each select item.
         for (SelectItem selectItem : plainSelect.getSelectItems()) {
-        	//System.out.println("HELLOOO "+selectItem); //DEBUG
-        	SelectGraphGenerator selectGraphGenerator = new SelectGraphGenerator(metaVertex);
+        	System.out.println("HELLOOO "+selectItem); //DEBUG
+        	SelectGraphGenerator selectGraphGenerator = new SelectGraphGenerator(metaVertex, plainSelect.getFromItem());
         	selectItem.accept(selectGraphGenerator);
         }
         metaVertex.collapseChildren();
@@ -393,11 +393,14 @@ public class App {
                 }
             }
         }
+        
+        System.out.println("IS_VALID "+(selectVertex.parentGraph == graph));
+        System.out.println(graph.edges+" "+graph);
         filterVertex.createIncomingConnections(constantVertex);
         selectVertex.createIncomingConnections(constantVertex);
         
         //filterVertex.mergeWithParent();
-        //selectVertex.mergeWithParent();
+        selectVertex.mergeWithParent();
         // All graphs are printed to files
 
 

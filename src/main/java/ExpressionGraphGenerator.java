@@ -47,15 +47,28 @@ public class ExpressionGraphGenerator extends MetaVertex implements ExpressionVi
 
     @Override
     public void visit(Function function) {
-        System.out.println("AAA");
+        System.out.println("AAA "+function);
         String name = function.getName().toLowerCase(Locale.ENGLISH);
+        System.out.println(name);
         rootVertex = new VertexImpl(name);
         putVertex(rootVertex);
 
+        System.out.println(function.getParameters());
+        
         List<Expression> expressionList = new ArrayList<>();
         if (function.getParameters() != null) {
+            System.out.println(function.getParameters().getExpressions());
             expressionList = function.getParameters().getExpressions();
         }
+        else if(function.isAllColumns()){
+        	Vertex vertex = new VertexImpl("*");
+        	putVertex(vertex);
+        	this.putEdge("", vertex, rootVertex, "ALL");
+        	System.out.println("AllColumns");
+            dataType = App.getReturnTypeOfFunctionWithParameters(name, null);
+        	return;
+        }
+        
         List<String> parameterTypes = new ArrayList<>();
         for (Expression expression : expressionList) {
             ExpressionGraphGenerator parameterGraphGenerator = new ExpressionGraphGenerator("FUNC", this.subGraph);

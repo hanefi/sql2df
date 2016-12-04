@@ -160,7 +160,8 @@ public class MetaVertex extends Vertex {
 				ExpressionEdgeImpl inputEdge = inputEdges.get(i);
 				ExpressionEdgeImpl incomingEdge = incomingEdges.get(j);
 				Boolean nameEqualsCondition = inputEdge.edgeName.length()>0 && incomingEdge.edgeName.length()>0 
-						&& inputEdge.edgeName.equals(incomingEdge.edgeName);
+						&& (inputEdge.edgeName.equals("*") || inputEdge.edgeName.equals(incomingEdge.edgeName) 
+								|| incomingEdge.edgeName.equals("*"));
 				Boolean idEqualsCondition = inputEdge.id == incomingEdge.id;
 				if(nameEqualsCondition || idEqualsCondition){
 					ExpressionEdgeImpl newEdge = ExpressionEdgeImpl.createEdge(incomingEdge.edgeName, 
@@ -184,7 +185,8 @@ public class MetaVertex extends Vertex {
 				ExpressionEdgeImpl outputEdge = outputEdges.get(i);
 				ExpressionEdgeImpl outgoingEdge = outgoingEdges.get(j);
 				Boolean nameEqualsCondition = outputEdge.edgeName.length()>0 && outgoingEdge.edgeName.length()>0 
-						&& outputEdge.edgeName.equals(outgoingEdge.edgeName);
+						&& (outputEdge.edgeName.equals("*") || outputEdge.edgeName.equals(outgoingEdge.edgeName) 
+								|| outgoingEdge.edgeName.equals("*"));
 				Boolean idEqualsCondition = outputEdge.id == outgoingEdge.id;
 				if(nameEqualsCondition || idEqualsCondition){
 					ExpressionEdgeImpl newEdge = ExpressionEdgeImpl.createEdge(outgoingEdge.edgeName, 
@@ -217,6 +219,7 @@ public class MetaVertex extends Vertex {
 	}
 	
 	public void createIncomingConnections(Vertex vertex){
+		System.out.println("Creating Incoming Connections");
 		Vertex inputsVertex = rootVertex;
 		List<ExpressionEdgeImpl> inputEdges = inputsVertex.getOutgoingEdges();
 		for(int i = inputEdges.size()-1; i >= 0; i--){
@@ -225,7 +228,8 @@ public class MetaVertex extends Vertex {
 			for(int j = incomingEdges.size()-1; j >= 0; j--){
 				ExpressionEdgeImpl incomingEdge = incomingEdges.get(j);
 				Boolean nameEqualsCondition = inputEdge.edgeName.length()>0 && incomingEdge.edgeName.length()>0 
-						&& inputEdge.edgeName.equals(incomingEdge.edgeName);
+						&& (inputEdge.edgeName.equals("*") || inputEdge.edgeName.equals(incomingEdge.edgeName) 
+						|| incomingEdge.edgeName.equals("*")) ;
 				Boolean idEqualsCondition = inputEdge.id == incomingEdge.id;
 				if(nameEqualsCondition || idEqualsCondition){
 					matches = true;
@@ -233,9 +237,12 @@ public class MetaVertex extends Vertex {
 				}
 			}
 			if(!matches){
+				System.out.println("Incoming Connection Found "+inputEdge);
 				ExpressionEdgeImpl newEdge = ExpressionEdgeImpl.createEdge(inputEdge.edgeName, 
 						vertex, this, inputEdge.dataType, inputEdge.id);
+				System.out.println(newEdge);
 				parentGraph.edges.add(newEdge);
+				System.out.println(parentGraph);
 			}
 		}
 	}
