@@ -337,7 +337,7 @@ public class App {
 
             List<Expression> groupByColumns = plainSelect.getGroupByColumnReferences(); // Columns used for grouping
             if (groupByColumns != null) {
-                Vertex groupVertex = new VertexImpl("GROUP");   // Creates the GROUP node in the high level graph.
+                Vertex groupVertex = new VertexImpl("GROUP", "N", "N^2");   // Creates the GROUP node in the high level graph.
                 graph.putVertex(groupVertex);
                 // Connects each column that is used for grouping from their last vertex to GROUP vertex.
                 for (Expression groupByColumn : groupByColumns) {
@@ -392,7 +392,7 @@ public class App {
 
             List<OrderByElement> orderByColumns = plainSelect.getOrderByElements(); // Columns used in ordering
             if (orderByColumns != null) {
-                Vertex orderVertex = new VertexImpl("ORDER");   // Creates the ORDER vertex.
+                Vertex orderVertex = new VertexImpl("ORDER", "N", "N");   // Creates the ORDER vertex.
                 graph.putVertex(orderVertex);
                 // Connects each column used for ordering from their last vertex to ORDER vertex.
                 for (OrderByElement orderByColumn : orderByColumns) {

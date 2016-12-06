@@ -62,6 +62,14 @@ public abstract class Vertex {
 		return fanIn;
 	}
 	
+	public String getInputCardinality(){
+		return inputCardinality;
+	}
+	
+	public String getOutputCardinality(){
+		return outputCardinality;
+	}
+	
 	public static Vertex fromString(String vertexString) {
 		try{
 			return TableVertex.fromString(vertexString);

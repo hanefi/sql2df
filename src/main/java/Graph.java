@@ -41,8 +41,8 @@ public class Graph {
     	output += "digraph {\n";
         for (ExpressionEdgeImpl edge : edges) {
             //System.out.println(edge+ " "+ edge.getSourceVertex());
-        	String tail = edge.getSourceVertex().outputCardinality;
-        	String head = edge.getDestinationVertex().inputCardinality;
+        	String tail = edge.getSourceVertex().getOutputCardinality();
+        	String head = edge.getDestinationVertex().getInputCardinality();
             output += '"' + edge.getSourceVertex().toString() + '"' + " -> " + '"'
                     + edge.getDestinationVertex().toString() + '"' + "[label=\"" + edge.toString() + "\","
                     		+ " headlabel=\"" + head + "\", taillabel=\"" + tail + "\" ]\n";

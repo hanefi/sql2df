@@ -341,5 +341,5 @@ public class MetaVertex extends Vertex {
 	public String getSubGraph(){
 		return subGraph.toString();
 	}
-	
 }
+
