@@ -9,6 +9,7 @@ import net.sf.jsqlparser.statement.select.SubSelect;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
@@ -50,6 +51,7 @@ public class ExpressionGraphGenerator extends MetaVertex implements ExpressionVi
         System.out.println("AAA "+function);
         String name = function.getName().toLowerCase(Locale.ENGLISH);
         System.out.println(name);
+
         rootVertex = new VertexImpl(name);
         putVertex(rootVertex);
 
@@ -65,7 +67,12 @@ public class ExpressionGraphGenerator extends MetaVertex implements ExpressionVi
         	putVertex(vertex);
         	this.putEdge("", vertex, rootVertex, "ALL");
         	System.out.println("AllColumns");
-            dataType = App.getReturnTypeOfFunctionWithParameters(name, null);
+        	List<String> params = new LinkedList<String>();
+        	params.add("any");
+        	FunctionDef fnDef = App.getFunctionDef(name, params);
+            dataType = fnDef.returnType;
+            rootVertex.inputCardinality = fnDef.inputCardinality;
+            rootVertex.outputCardinality = fnDef.outputCardinality;
         	return;
         }
         
@@ -78,7 +85,10 @@ public class ExpressionGraphGenerator extends MetaVertex implements ExpressionVi
             putVertex(parameterGraphGenerator);
             parameterGraphGenerator.putEdge("", parameterGraphGenerator.rootVertex, rootVertex, parameterType);
         }
-        dataType = App.getReturnTypeOfFunctionWithParameters(name, parameterTypes);
+    	FunctionDef fnDef = App.getFunctionDef(name, parameterTypes);
+        dataType = fnDef.returnType;
+        rootVertex.inputCardinality = fnDef.inputCardinality;
+        rootVertex.outputCardinality = fnDef.outputCardinality;   
     }
 
     @Override

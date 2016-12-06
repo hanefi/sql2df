@@ -12,10 +12,14 @@ public abstract class Vertex {
 	List<ExpressionEdgeImpl> incomingEdges;
 	String vertexName;
 	public int id;
+	public String inputCardinality;
+	public String outputCardinality;
 	
 	public Vertex(){
 		outgoingEdges = new LinkedList<>();
 		incomingEdges = new LinkedList<>();
+		inputCardinality = "1";
+		outputCardinality = "1";
 	}
 	
 	public List<ExpressionEdgeImpl> getOutgoingEdges(){

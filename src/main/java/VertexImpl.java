@@ -31,6 +31,14 @@ public class VertexImpl extends Vertex {
 		this.id = id;
 		cnt = Math.max(id + 1, cnt);
 	}
+	
+	public VertexImpl(String vertexName, String inputCardinality, String outputCardinality){
+		this.vertexName = vertexName;
+		this.inputCardinality = inputCardinality;
+		this.outputCardinality = outputCardinality;
+        this.id = cnt;
+		cnt++;
+	}
 
 
 	@Override

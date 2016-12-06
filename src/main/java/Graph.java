@@ -41,12 +41,11 @@ public class Graph {
     	output += "digraph {\n";
         for (ExpressionEdgeImpl edge : edges) {
             //System.out.println(edge+ " "+ edge.getSourceVertex());
+        	String tail = edge.getSourceVertex().outputCardinality;
+        	String head = edge.getDestinationVertex().inputCardinality;
             output += '"' + edge.getSourceVertex().toString() + '"' + " -> " + '"'
-                    + edge.getDestinationVertex().toString() + '"' + "[label=\"" + edge.toString() + "\"]\n";
-        }
-        for(Vertex v : vertices.values()){
-        	  output += '"' + v.toString() + '"' + " -> " + '"'
-                      + v.toString() + '"' + "[label=\"TEST\"]\n";
+                    + edge.getDestinationVertex().toString() + '"' + "[label=\"" + edge.toString() + "\","
+                    		+ " headlabel=\"" + head + "\", taillabel=\"" + tail + "\" ]\n";
         }
         output += "}\n";
         return output;

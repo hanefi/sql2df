@@ -101,6 +101,8 @@ public class App {
      * @param parameters Ordered list of function's parameters
      * @return Return type of the given function
      */
+    
+    //DEPRECATED
     public static String getReturnTypeOfFunctionWithParameters(String name, List<String> parameters) {
         // Searches given function in the defined functions list.
         for (FunctionDef functionDef : functionDefs) {
@@ -132,7 +134,40 @@ public class App {
         }
     }
 
+    public static FunctionDef getFunctionDef(String name, List<String> parameters) {
+        // Searches given function in the defined functions list.
+        for (FunctionDef functionDef : functionDefs) {
+        	//System.out.println("Function name: "+name + " " +functionDef); //DEBUG
+            if (functionDef.name.equals(name)) {
+                if (functionDef.parameters.equals(parameters)) {
+                    return functionDef;
+                } else if (!functionDef.parameters.isEmpty() &&
+                        functionDef.parameters.get(0).equals("any")) {
+                    return functionDef;
+                }
+            }
+        }
 
+        if (!parameters.isEmpty()) {
+        	  for (FunctionDef functionDef : functionDefs) 
+                  if (functionDef.name.equals(name)) 
+                	  return new FunctionDef(name, functionDef.inputCardinality, functionDef.outputCardinality, parameters.get(0), parameters);
+        }
+
+        /**
+         * If the function with given parameters doesn't match any defined function
+         * and it doesn't have any argument then throw an exception.
+         */
+        try {
+            throw new Exception("unsupported function: " + name);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new FunctionDef("UNKNOWN", "1", "1", "unknown", new LinkedList<String>());
+        }
+    }
+
+    
+    
     public static void main(String[] args) throws Exception {
         readStorageSizes(); // Reads storage size of data types.
         readFunctions();    // Reads the signatures of functions.
@@ -198,9 +233,11 @@ public class App {
             String line = scanner.nextLine();
             String[] tokens = line.split(",");
             String name = tokens[0];
-            String returnType = tokens[1];
-            List<String> parameters = Arrays.asList(Arrays.copyOfRange(tokens, 2, tokens.length));
-            FunctionDef functionDef = new FunctionDef(name, returnType, parameters);
+            String inputCardinality = tokens[1];
+            String outputCardinality = tokens[2];
+            String returnType = tokens[3];
+            List<String> parameters = Arrays.asList(Arrays.copyOfRange(tokens, 4, tokens.length));
+            FunctionDef functionDef = new FunctionDef(name, inputCardinality, outputCardinality, returnType, parameters);
             functionDefs.add(functionDef);
         }
         scanner.close();
@@ -222,8 +259,10 @@ public class App {
             String[] tokens = line.split(",");
             System.out.println("FUNCTION: "+Arrays.asList(tokens));
             String functionName = tokens[0];
-            String parameter = tokens[1];
-            String result = tokens[2];
+            String inputCardinality = tokens[1]; //USELESS FOR NOW
+            String outputCardinality = tokens[2]; //USELESS FOR NOW
+            String parameter = tokens[3];
+            String result = tokens[4];
             if (!functionsMap.containsKey(functionName)) {
                 functionsMap.put(functionName, new HashMap<String, String>());
             }
@@ -400,7 +439,7 @@ public class App {
         selectVertex.createIncomingConnections(constantVertex);
         
         //filterVertex.mergeWithParent();
-        selectVertex.mergeWithParent();
+        //selectVertex.mergeWithParent();
         // All graphs are printed to files
 
 
@@ -420,13 +459,14 @@ public class App {
      */
     public static void generateGraphFile(Graph graph, File file) throws FileNotFoundException {
         PrintStream stream = new PrintStream(file);
-        stream.println("digraph {");
+       /* stream.println("digraph {");
         for (Edge edge : graph.edges) {
              System.out.println(edge+ " "+ edge.getSourceVertex());
             stream.println('"' + edge.getSourceVertex().toString() + '"' + " -> " + '"'
                     + edge.getDestinationVertex().toString() + '"' + "[label=\"" + edge.toString() + "\"]");
         }
-        stream.println("}");
+        stream.println("}");*/
+        stream.println(graph);
         stream.close();
     }
 
