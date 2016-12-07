@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 public class TableVertex extends Vertex {
 	
 	//private String tableName;
-	private static Map<String, TableVertex> tableVertexMap = new HashMap<>();
+	public static Map<String, TableVertex> tableVertexMap = new HashMap<>();
 	
 
 	public TableVertex(String tableName) {

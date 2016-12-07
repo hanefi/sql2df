@@ -209,7 +209,8 @@ public class MetaVertex extends Vertex {
 			parentGraph.removeEdge(outgoingEdges.get(j));
 		}
 
-		
+		subGraph.vertices.remove("OUTPUTS");
+		subGraph.vertices.remove("INPUTS");
 		
 		parentGraph.vertices.remove(this.toString());
 		parentGraph.vertices.putAll(subGraph.vertices);

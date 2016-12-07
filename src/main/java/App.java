@@ -33,7 +33,8 @@ public class App {
     public static Map<String, Integer> storageSizeMap = new HashMap<>();
     public static List<FunctionDef> functionDefs = new LinkedList<>();
 
-
+    public static Graph graph;
+    
     /**
      * Generates the filter sub-graph.
      * @param filterExpression Expression that is used in filtering, WHERE clause of the query.
@@ -302,10 +303,11 @@ public class App {
 
         Map<String, Vertex> lastVertexOfColumn = new HashMap<>();   // Keeps the Vertex that used a column last.
 
-        Graph graph = new Graph();
+        graph = new Graph();
         MetaVertex filterVertex = new MetaVertex("UNKNOWN");;
         MetaVertex selectVertex = new MetaVertex("UNKNOWN");
         Vertex constantVertex = new VertexImpl("CONSTANT"); 
+        graph.putVertex(constantVertex);
 
         if (selectBody instanceof PlainSelect) {
             PlainSelect plainSelect = (PlainSelect) selectBody;
@@ -438,8 +440,11 @@ public class App {
         filterVertex.createIncomingConnections(constantVertex);
         selectVertex.createIncomingConnections(constantVertex);
         
-        //filterVertex.mergeWithParent();
-        //selectVertex.mergeWithParent();
+        for(Vertex v : TableVertex.tableVertexMap.values())
+        	graph.putVertex(v);
+         
+        filterVertex.mergeWithParent();
+        selectVertex.mergeWithParent();
         // All graphs are printed to files
 
 
