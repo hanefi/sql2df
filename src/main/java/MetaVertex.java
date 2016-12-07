@@ -49,6 +49,12 @@ public class MetaVertex extends Vertex {
 		parentGraph.vertices.put(toString(), this);
 	}
 	
+	public void changeRoot(Vertex root){
+		this.subGraph.vertices.remove(this.rootVertex.toString());
+		this.rootVertex = root;
+		subGraph.putVertex(root);
+	}
+	
 	private void putVertices(List<Vertex> vertices, Graph parentGraph){
 		rootVertex = new TableVertex(ROOT);
 		sinkVertex = new TableVertex(SINK);
@@ -209,8 +215,8 @@ public class MetaVertex extends Vertex {
 			parentGraph.removeEdge(outgoingEdges.get(j));
 		}
 
-		subGraph.vertices.remove("OUTPUTS");
-		subGraph.vertices.remove("INPUTS");
+		subGraph.vertices.remove(rootVertex.toString());
+		subGraph.vertices.remove(sinkVertex.toString());
 		
 		parentGraph.vertices.remove(this.toString());
 		parentGraph.vertices.putAll(subGraph.vertices);
@@ -324,7 +330,7 @@ public class MetaVertex extends Vertex {
 		List<String> toRemove = new LinkedList<>();
 		for(String s : subGraph.vertices.keySet()){
 			Vertex v = subGraph.vertices.get(s);
-			if( v != rootVertex && v.getIncomingEdges().isEmpty())
+			if( v != rootVertex && v.getIncomingEdges().isEmpty()){
 				for(ExpressionEdgeImpl e : v.getOutgoingEdges()){
 					String edgeName = v.vertexName;
 					if(e.edgeName.length() > 0)
@@ -332,7 +338,8 @@ public class MetaVertex extends Vertex {
 					putEdge(edgeName, rootVertex, e.getDestinationVertex(), e.dataType);
 					subGraph.removeEdge(e);
 				}
-			toRemove.add(s);
+				toRemove.add(s);
+			}
 		}
 		for(String s : toRemove)
 			subGraph.vertices.remove(s);

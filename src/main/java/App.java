@@ -43,12 +43,10 @@ public class App {
     public static MetaVertex generateFilterGraph(Expression filterExpression, Set<String> selectColumns) {
         // Generates a sub-graph with one boolean filter output.
         MetaVertex metaVertex = new MetaVertex("FILTER_SUBGRAPH");
-    	ExpressionGraphGenerator expressionGraphGenerator = new ExpressionGraphGenerator("FILTER_QUERY", metaVertex.subGraph);
+    	ExpressionGraphGenerator expressionGraphGenerator = new ExpressionGraphGenerator(metaVertex);
         filterExpression.accept(expressionGraphGenerator);
         //Vertex filterRootVertex = expressionGraphGenerator.rootVertex;
-       
-        metaVertex.putVertex(expressionGraphGenerator);
-        
+               
         //Vertex endVertex = new VertexImpl("END_FILTER");    // Creates a dummy END vertex to connect all filtered columns.
         //metaVertex.putVertex(endVertex);
         
@@ -62,11 +60,11 @@ public class App {
             metaVertex.putVertex(selectVertex);
             String columnDataType = dataTypeOfColumnMap.get(selectColumn).toString().toLowerCase(Locale.ENGLISH);
             metaVertex.subGraph.edges.add(ExpressionEdgeImpl.createEdge(selectColumn, metaVertex.rootVertex , selectVertex, columnDataType));
-            expressionGraphGenerator.putEdge("", expressionGraphGenerator.rootVertex, selectVertex, "boolean");
+            metaVertex.putEdge("", expressionGraphGenerator.rootVertex, selectVertex, "boolean");
             metaVertex.subGraph.edges.add(ExpressionEdgeImpl.createEdge(selectColumn, selectVertex, metaVertex.sinkVertex, columnDataType));
         }
         
-        metaVertex.collapseChildren();
+        //metaVertex.collapseChildren();
         metaVertex.edgifySources();
         System.out.println("Printing FILTER Subgraph"); //DEBUG
         System.out.println(metaVertex.subGraph); //DEBUG

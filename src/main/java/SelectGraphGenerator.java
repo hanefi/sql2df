@@ -59,14 +59,13 @@ public class SelectGraphGenerator implements SelectItemVisitor{
     @Override
     public void visit(SelectExpressionItem selectExpressionItem) {
         System.out.println("I am visiting in SELECTGRAPHGENERATOR");
-    	ExpressionGraphGenerator expressionGraphGenerator = new ExpressionGraphGenerator("SELECT_META", metaVertex.subGraph);
+    	ExpressionGraphGenerator expressionGraphGenerator = new ExpressionGraphGenerator(metaVertex);
         selectExpressionItem.getExpression().accept(expressionGraphGenerator);
         String name = "";
         if (selectExpressionItem.getAlias() != null) {
             name = selectExpressionItem.getAlias().getName();
         }
-        metaVertex.putVertex(expressionGraphGenerator);
-        expressionGraphGenerator.putEdge(name, expressionGraphGenerator.rootVertex, metaVertex.sinkVertex, expressionGraphGenerator.dataType);		
+        metaVertex.putEdge(name, expressionGraphGenerator.rootVertex, metaVertex.sinkVertex, expressionGraphGenerator.dataType);		
         //Should be to SINK
     }
 }
