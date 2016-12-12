@@ -50,4 +50,31 @@ public class Graph {
         output += "}\n";
         return output;
     }
+    
+    public String printWithSchedule(List<List<Vertex>> schedule){
+    	String output = "";
+    	output += "digraph {\n";
+    	
+    	for(int i = 0; i < schedule.size(); i++){
+    		output += "subgraph cluster"+i+" {\n";
+    		output += "label=\"Instruction "+i+"\";\n";
+    		//output += "rank=same;\n";
+    		for(Vertex v : schedule.get(i))
+    			output += "\""+v+"\";";
+    		output += "}\n";
+    	}
+    	
+    	
+        for (ExpressionEdgeImpl edge : edges) {
+            //System.out.println(edge+ " "+ edge.getSourceVertex());
+        	String tail = edge.getSourceVertex().getOutputCardinality();
+        	String head = edge.getDestinationVertex().getInputCardinality();
+            output += '"' + edge.getSourceVertex().toString() + '"' + " -> " + '"'
+                    + edge.getDestinationVertex().toString() + '"' + "[label=\"" + edge.toString() + "\","
+                    		+ " headlabel=\"" + head + "\", taillabel=\"" + tail + "\" ]\n";
+        }
+    	
+        output += "}\n";
+        return output;
+    }
 }
