@@ -55,13 +55,18 @@ public class ListScheduler extends HuScheduler{
 		visited = new HashSet<>();
 		
 		List<List<Vertex>> schedule = new LinkedList<List<Vertex>>();
-				
+		
+		GreedyScheduler greedyScheduler = new GreedyScheduler(graph);
+		List<List<Vertex>> unconstrainedSchedule = greedyScheduler.schedule();
+		
 		scheduleFirstInstruction(schedule, visited);
-		schedule.addAll(schedule(1));
+		for(List<Vertex> unconstrainedInstruction : unconstrainedSchedule){
+			schedule.addAll(schedule(1, unconstrainedInstruction));
+		}
 		return schedule;
 	}
 	
-	public List<List<Vertex>> schedule(int depth){
+	public List<List<Vertex>> schedule(int depth, List<Vertex> allowedVertices){
 		
 		List<List<Vertex>> schedule = new LinkedList<List<Vertex>>();
 		
@@ -95,7 +100,7 @@ public class ListScheduler extends HuScheduler{
 				int usedResourceCount = 0;
 				for(int i = alpha; usedResourceCount < resource.availableAmount && i >= 0; i--){
 					for(Vertex v : p.get(i)){
-						if(!inProgress.containsKey(v) && !visited.contains(v) && resource.canParseVertex(v)){
+						if(!inProgress.containsKey(v) && !visited.contains(v) && resource.canParseVertex(v) && allowedVertices.contains(v)){
 							boolean neighborsVisited = true;
 							for(ExpressionEdgeImpl e : v.getIncomingEdges())
 								if(!visited.contains(e.getSourceVertex()))
@@ -113,19 +118,14 @@ public class ListScheduler extends HuScheduler{
 				}
 			}
 	
-			List<List<Vertex>> parentSchedule = schedule(depth - 1);
-			System.out.println("DEP: "+ depth);
-			System.out.println(parentSchedule);
-			System.out.println("INSTR: " + instruction);
+			List<List<Vertex>> parentSchedule = schedule(depth - 1, allowedVertices);
+
 			if(parentSchedule.size() > 0){
 				update = true;
 				instruction.addAll(parentSchedule.get(0));
 				parentSchedule.remove(0);
 			}
-			
-			if(instruction.size() == 0){
-				//System.out.println("LOL");
-			}
+				
 			
 			schedule.add(instruction);
 			schedule.addAll(parentSchedule);
