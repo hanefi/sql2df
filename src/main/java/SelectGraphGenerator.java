@@ -17,13 +17,15 @@ public class SelectGraphGenerator implements SelectItemVisitor{
     //private Vertex endVertex;
 	MetaVertex metaVertex;
 	FromItem fromItem;
+	Set<String> tables;
     /**
      * Creates a SelectItemVisitor that can be used to generate a select sub-graph that is connected to the dummy END node.
      * @param endVertex Dummy end node
      */
-    public SelectGraphGenerator(MetaVertex metaVertex, FromItem fromItem){
+    public SelectGraphGenerator(MetaVertex metaVertex, FromItem fromItem, Set<String> tables){
     	this.metaVertex = metaVertex;
     	this.fromItem = fromItem;
+    	this.tables = tables;
     }
     
    // public SelectGraphGenerator(){
@@ -59,7 +61,7 @@ public class SelectGraphGenerator implements SelectItemVisitor{
     @Override
     public void visit(SelectExpressionItem selectExpressionItem) {
         System.out.println("I am visiting in SELECTGRAPHGENERATOR");
-    	ExpressionGraphGenerator expressionGraphGenerator = new ExpressionGraphGenerator(metaVertex);
+    	ExpressionGraphGenerator expressionGraphGenerator = new ExpressionGraphGenerator(metaVertex, tables);
         selectExpressionItem.getExpression().accept(expressionGraphGenerator);
         String name = "";
         if (selectExpressionItem.getAlias() != null) {

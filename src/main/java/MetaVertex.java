@@ -20,11 +20,11 @@ public class MetaVertex extends Vertex {
 	protected Graph parentGraph; //Exists if we ever want to collapse a graph
 	protected Graph subGraph;
 	
-	private String label;
+	//private String vertexName;
 	private int id;
 	
-	public MetaVertex(String label){
-		this.label = label;
+	public MetaVertex(String vertexName){
+		this.vertexName = vertexName;
 		id = metaCnt ++;
 		subGraph = new Graph();
 		
@@ -34,7 +34,7 @@ public class MetaVertex extends Vertex {
 		putVertex(sinkVertex);
 	}
 	
-	public MetaVertex(List<Vertex> vertices, Graph parentGraph, String label){
+	public MetaVertex(List<Vertex> vertices, Graph parentGraph, String vertexName){
 		
 		MetaVertex.canCreateMetaNode(vertices, parentGraph);
 		
@@ -43,7 +43,7 @@ public class MetaVertex extends Vertex {
 		putVertices(vertices, parentGraph);
 		putEdges(vertices, parentGraph);
 		
-		this.label = label;
+		this.vertexName = vertexName;
 		id = metaCnt ++;
 		
 		parentGraph.vertices.put(toString(), this);
@@ -145,7 +145,7 @@ public class MetaVertex extends Vertex {
 	
 	@Override
 	public String toString(){
-		return "meta: "+ label +", " + "id: " + id;
+		return "meta: "+ vertexName +", " + "id: " + id;
 	}
 	
 	public void mergeWithParent(){
@@ -282,8 +282,8 @@ public class MetaVertex extends Vertex {
 		subGraph.vertices.put(vertex.toString(), vertex);
 	}
 	
-	public void putEdge(String label, Vertex sourceVertex, Vertex destinationVertex, String dataType){		
-		System.out.println("DEBUG EDGE "+ label + " " + sourceVertex + " " + destinationVertex + " " +dataType);
+	public void putEdge(String vertexName, Vertex sourceVertex, Vertex destinationVertex, String dataType){		
+		System.out.println("DEBUG EDGE "+ vertexName + " " + sourceVertex + " " + destinationVertex + " " +dataType);
 
 		Boolean isSourceInMetaNode = subGraph.vertices.containsKey(sourceVertex.toString());
 		Boolean isDestinationInMetaNode = subGraph.vertices.containsKey(destinationVertex.toString());
@@ -297,7 +297,7 @@ public class MetaVertex extends Vertex {
 		System.out.println(isSourceInMetaNode + " " + isDestinationInMetaNode);
 
 		if(isSourceInMetaNode && isDestinationInMetaNode){
-			ExpressionEdgeImpl insideEdge = ExpressionEdgeImpl.createEdge(label, sourceVertex, destinationVertex, dataType, id);
+			ExpressionEdgeImpl insideEdge = ExpressionEdgeImpl.createEdge(vertexName, sourceVertex, destinationVertex, dataType, id);
 			subGraph.edges.add(insideEdge);
 			return;
 		}
@@ -310,19 +310,19 @@ public class MetaVertex extends Vertex {
 		Boolean isDestinationInParentNode = parentGraph.vertices.containsKey(destinationVertex.toString());
 		
 		if(isSourceInParentNode && isDestinationInMetaNode){
-			ExpressionEdgeImpl insideEdge = ExpressionEdgeImpl.createEdge(label, root, destinationVertex, dataType, id);
-			ExpressionEdgeImpl outsideEdge = ExpressionEdgeImpl.createEdge(label, sourceVertex, this, dataType, id);
+			ExpressionEdgeImpl insideEdge = ExpressionEdgeImpl.createEdge(vertexName, root, destinationVertex, dataType, id);
+			ExpressionEdgeImpl outsideEdge = ExpressionEdgeImpl.createEdge(vertexName, sourceVertex, this, dataType, id);
 			subGraph.edges.add(insideEdge);
 			parentGraph.edges.add(outsideEdge);
 		}
 		else if(isSourceInMetaNode && isDestinationInParentNode){
-			ExpressionEdgeImpl insideEdge = ExpressionEdgeImpl.createEdge(label, sourceVertex, sink, dataType, id);
-			ExpressionEdgeImpl outsideEdge = ExpressionEdgeImpl.createEdge(label, this, destinationVertex, dataType, id);
+			ExpressionEdgeImpl insideEdge = ExpressionEdgeImpl.createEdge(vertexName, sourceVertex, sink, dataType, id);
+			ExpressionEdgeImpl outsideEdge = ExpressionEdgeImpl.createEdge(vertexName, this, destinationVertex, dataType, id);
 			subGraph.edges.add(insideEdge);
 			parentGraph.edges.add(outsideEdge);
 		}
 		else{
-			System.out.println("This edge doesn't belong here "+ label + " " + sourceVertex + " " + destinationVertex + " " +dataType);
+			System.out.println("This edge doesn't belong here "+ vertexName + " " + sourceVertex + " " + destinationVertex + " " +dataType);
 		}
 	}
 	

@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * Creates a sub-graph for visited expression.
@@ -25,14 +26,16 @@ public class ExpressionGraphGenerator implements ExpressionVisitor, ItemsListVis
      */
 	Vertex rootVertex;
 	MetaVertex metaVertex;
+	Set<String> tables;
     /**
      * Data type of the visited expression.
      */
     String dataType;
     
     
-    public ExpressionGraphGenerator(MetaVertex metaVertex){
+    public ExpressionGraphGenerator(MetaVertex metaVertex, Set<String> tables){
     	this.metaVertex = metaVertex;
+    	this.tables = tables;
     }
     
     public ExpressionGraphGenerator(){
@@ -63,9 +66,12 @@ public class ExpressionGraphGenerator implements ExpressionVisitor, ItemsListVis
             expressionList = function.getParameters().getExpressions();
         }
         else if(function.isAllColumns()){
-        	Vertex vertex = new VertexImpl("*");
-        	metaVertex.putVertex(vertex);
-        	metaVertex.putEdge("", vertex, rootVertex, "ALL");
+        	for(String table : tables)
+        		for(String column : App.columnsOfTableMap.get(table)){
+        			Vertex vertex = new VertexImpl(column);
+        			metaVertex.putVertex(vertex);
+        			metaVertex.putEdge("", vertex, rootVertex, App.dataTypeOfColumnMap.get(column));
+        		}
         	System.out.println("AllColumns");
         	List<String> params = new LinkedList<String>();
         	params.add("any");
@@ -78,7 +84,7 @@ public class ExpressionGraphGenerator implements ExpressionVisitor, ItemsListVis
         
         List<String> parameterTypes = new ArrayList<>();
         for (Expression expression : expressionList) {
-            ExpressionGraphGenerator parameterGraphGenerator = new ExpressionGraphGenerator(metaVertex);
+            ExpressionGraphGenerator parameterGraphGenerator = new ExpressionGraphGenerator(metaVertex, tables);
             expression.accept(parameterGraphGenerator);
             String parameterType = parameterGraphGenerator.dataType;
             parameterTypes.add(parameterType);
@@ -95,7 +101,7 @@ public class ExpressionGraphGenerator implements ExpressionVisitor, ItemsListVis
         if (signedExpression.getSign() == '-') {
             rootVertex = new VertexImpl("-");
             metaVertex.putVertex(rootVertex);
-            ExpressionGraphGenerator expressionGraphGenerator = new ExpressionGraphGenerator(metaVertex);
+            ExpressionGraphGenerator expressionGraphGenerator = new ExpressionGraphGenerator(metaVertex, tables);
             signedExpression.getExpression().accept(expressionGraphGenerator);
             dataType = expressionGraphGenerator.dataType;
             metaVertex.putEdge("", expressionGraphGenerator.rootVertex, rootVertex, dataType);
@@ -197,9 +203,9 @@ public class ExpressionGraphGenerator implements ExpressionVisitor, ItemsListVis
         rootVertex = new VertexImpl(binaryExpression.getClass().getSimpleName());
         metaVertex.putVertex(rootVertex);
 
-        ExpressionGraphGenerator leftGraphGenerator = new ExpressionGraphGenerator(metaVertex);
+        ExpressionGraphGenerator leftGraphGenerator = new ExpressionGraphGenerator(metaVertex, tables);
         binaryExpression.getLeftExpression().accept(leftGraphGenerator);
-        ExpressionGraphGenerator rightGraphGenerator = new ExpressionGraphGenerator(metaVertex);
+        ExpressionGraphGenerator rightGraphGenerator = new ExpressionGraphGenerator(metaVertex, tables);
         binaryExpression.getRightExpression().accept(rightGraphGenerator);
 
         String leftType = leftGraphGenerator.dataType;
@@ -235,9 +241,9 @@ public class ExpressionGraphGenerator implements ExpressionVisitor, ItemsListVis
         rootVertex = new VertexImpl(operator);
         metaVertex.putVertex(rootVertex);
         
-        ExpressionGraphGenerator leftGraphGenerator = new ExpressionGraphGenerator(metaVertex);
+        ExpressionGraphGenerator leftGraphGenerator = new ExpressionGraphGenerator(metaVertex, tables);
         binaryExpression.getLeftExpression().accept(leftGraphGenerator);
-        ExpressionGraphGenerator rightGraphGenerator = new ExpressionGraphGenerator(metaVertex);
+        ExpressionGraphGenerator rightGraphGenerator = new ExpressionGraphGenerator(metaVertex, tables);
         binaryExpression.getRightExpression().accept(rightGraphGenerator);
        
         metaVertex.putEdge("", leftGraphGenerator.rootVertex, rootVertex, leftGraphGenerator.dataType);
@@ -269,10 +275,10 @@ public class ExpressionGraphGenerator implements ExpressionVisitor, ItemsListVis
             operator = "JOIN " + operator;
         }
 
-        ExpressionGraphGenerator leftGraphGenerator = new ExpressionGraphGenerator(metaVertex);
+        ExpressionGraphGenerator leftGraphGenerator = new ExpressionGraphGenerator(metaVertex, tables);
         leftExpression.accept(leftGraphGenerator);
 
-        ExpressionGraphGenerator rightGraphGenerator = new ExpressionGraphGenerator(metaVertex);
+        ExpressionGraphGenerator rightGraphGenerator = new ExpressionGraphGenerator(metaVertex, tables);
         rightExpression.accept(rightGraphGenerator);
 
         rootVertex = new VertexImpl(operator);
@@ -373,7 +379,7 @@ public class ExpressionGraphGenerator implements ExpressionVisitor, ItemsListVis
 
         List<Expression> expressions = expressionList.getExpressions();
         for (Expression expression : expressions) {
-            ExpressionGraphGenerator subGraphGenerator = new ExpressionGraphGenerator(metaVertex);
+            ExpressionGraphGenerator subGraphGenerator = new ExpressionGraphGenerator(metaVertex, tables);
             expression.accept(subGraphGenerator);
             metaVertex.putEdge("", subGraphGenerator.rootVertex, rootVertex, subGraphGenerator.dataType);
         }

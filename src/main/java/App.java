@@ -32,7 +32,6 @@ public class App {
     public static Map<String, Map<String, String>> functionsMap = new HashMap<>();
     public static Map<String, Integer> storageSizeMap = new HashMap<>();
     public static List<FunctionDef> functionDefs = new LinkedList<>();
-
     public static Graph graph;
     
     /**
@@ -40,10 +39,10 @@ public class App {
      * @param filterExpression Expression that is used in filtering, WHERE clause of the query.
      * @param selectColumns Columns that are used in SELECT clause of the query.
      */
-    public static MetaVertex generateFilterGraph(Expression filterExpression, Set<String> selectColumns) {
+    public static MetaVertex generateFilterGraph(Expression filterExpression, Set<String> selectColumns, Set<String> tables) {
         // Generates a sub-graph with one boolean filter output.
         MetaVertex metaVertex = new MetaVertex("FILTER_SUBGRAPH");
-    	ExpressionGraphGenerator expressionGraphGenerator = new ExpressionGraphGenerator(metaVertex);
+    	ExpressionGraphGenerator expressionGraphGenerator = new ExpressionGraphGenerator(metaVertex, tables);
         filterExpression.accept(expressionGraphGenerator);
         //Vertex filterRootVertex = expressionGraphGenerator.rootVertex;
                
@@ -76,14 +75,14 @@ public class App {
      * Generates the select sub-graph.
      * @param plainSelect Body of a plain select query
      */
-    public static MetaVertex generateSelectGraph(PlainSelect plainSelect) {
+    public static MetaVertex generateSelectGraph(PlainSelect plainSelect, Set<String> tables) {
        // Vertex endVertex = new VertexImpl("END_SELECT");    // Creates a dummy END vertex to connect all produced data.
         MetaVertex metaVertex = new MetaVertex("SELECT_SUBGRAPH");
         System.out.println(plainSelect.getFromItem());
         // A data-flow graph whose root is connected to the dummy END vertex is generated for each select item.
         for (SelectItem selectItem : plainSelect.getSelectItems()) {
         	System.out.println("HELLOOO "+selectItem); //DEBUG
-        	SelectGraphGenerator selectGraphGenerator = new SelectGraphGenerator(metaVertex, plainSelect.getFromItem());
+        	SelectGraphGenerator selectGraphGenerator = new SelectGraphGenerator(metaVertex, plainSelect.getFromItem(), tables);
         	selectItem.accept(selectGraphGenerator);
         }
         metaVertex.collapseChildren();
@@ -312,7 +311,7 @@ public class App {
             //System.out.println("Plain Select Body: " + plainSelect); //DEBUG
             System.out.println("Before generating SELECT Graph"); //DEBUG
            
-            selectVertex = generateSelectGraph(plainSelect);   // Generates the SELECT sub-graph of the query.
+            selectVertex = generateSelectGraph(plainSelect, tables);   // Generates the SELECT sub-graph of the query.
             selectVertex.parentGraph = graph;
             graph.putVertex(selectVertex);
             
@@ -321,7 +320,7 @@ public class App {
             //System.out.println("WHERE Clause: " + expression); //DEBUG
             if (expression != null) {
                 System.out.println("Before generating FILTER Graph"); //DEBUG
-                filterVertex = generateFilterGraph(expression, selectColumns); // Generates the FILTER sub-graph of the query.
+                filterVertex = generateFilterGraph(expression, selectColumns, tables); // Generates the FILTER sub-graph of the query.
                 filterVertex.parentGraph = graph;
                 graph.putVertex(filterVertex);
                 //Vertex filterVertex = new VertexImpl("FILTER"); // Creates the FILTER node in the high level graph.
@@ -441,8 +440,8 @@ public class App {
         for(Vertex v : TableVertex.tableVertexMap.values())
         	graph.putVertex(v);
          
-        filterVertex.mergeWithParent();
-        selectVertex.mergeWithParent();
+        //filterVertex.mergeWithParent();
+        //selectVertex.mergeWithParent();
         // All graphs are printed to files
 
 

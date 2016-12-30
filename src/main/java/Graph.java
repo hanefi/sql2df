@@ -2,7 +2,9 @@ package main;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +52,48 @@ public class Graph {
         output += "}\n";
         return output;
     }
+    
+    public String printAndCollapse(){
+    	String output = "";
+    	output += "digraph {\n";
+    	
+    	List<Collection<Vertex>> metaVertices = new LinkedList<>(); 
+    	List<String> groupNames = new LinkedList<>();
+    	
+    	Iterator<Vertex> iter = vertices.values().iterator();
+    	
+    	while(iter.hasNext()){
+    		Vertex v = iter.next();
+    		if(v instanceof MetaVertex){
+    			metaVertices.add(((MetaVertex)v).subGraph.vertices.values());
+    			groupNames.add(v.vertexName);
+    			((MetaVertex)v).mergeWithParent();
+    			iter = vertices.values().iterator();
+    		}
+    	}
+    	
+    	for(int i = 0; i < metaVertices.size(); i++){
+				output += "subgraph cluster"+i+" {\n";
+				output += "label=\""+groupNames.get(i)+"\";\n";
+				//output += "rank=same;\n";
+				for(Vertex v : metaVertices.get(i))
+					output += "\""+v+"\";";
+				output += "}\n";
+    	}
+    	
+        for (ExpressionEdgeImpl edge : edges) {
+            //System.out.println(edge+ " "+ edge.getSourceVertex());
+        	String tail = edge.getSourceVertex().getOutputCardinality();
+        	String head = edge.getDestinationVertex().getInputCardinality();
+            output += '"' + edge.getSourceVertex().toString() + '"' + " -> " + '"'
+                    + edge.getDestinationVertex().toString() + '"' + "[label=\"" + edge.toString() + "\","
+                    		+ " headlabel=\"" + head + "\", taillabel=\"" + tail + "\" ]\n";
+        }
+    	
+        output += "}\n";
+        return output;
+    }
+    
     
     public String printWithSchedule(List<List<Vertex>> schedule){
     	String output = "";
