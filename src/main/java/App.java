@@ -412,8 +412,10 @@ public class App {
                  * So all non key SELECT items are connected to ORDER vertex from their last vertex.
                  */
                 for (SelectItem selectItem : selectItems) {
+                	System.out.println("Select Item:" + selectItem);
                     if (selectItem instanceof SelectExpressionItem) {
                         SelectExpressionItem selectExpressionItem = (SelectExpressionItem) selectItem;
+                        System.out.println("Select Expression Item:" + selectExpressionItem);
                         Alias alias = selectExpressionItem.getAlias();
                         String name = selectItem.toString();
                         if (alias != null) {
@@ -427,6 +429,19 @@ public class App {
                             graph.edges.add(edge);
                             lastVertexOfColumn.put(name, orderVertex);
                         }
+                    }
+                    if (selectItem instanceof AllColumns){
+                    	for(String table : tables){
+                    		for(String column : App.columnsOfTableMap.get(table)){
+                                Vertex lastVertex = lastVertexOfColumn.get(column);
+                                if (lastVertex != orderVertex) {
+                                    String dataType = App.dataTypeOfColumnMap.get(column);
+                                    ExpressionEdgeImpl edge = ExpressionEdgeImpl.createEdge(column, selectVertex, orderVertex, dataType);
+                                    graph.edges.add(edge);
+                                    lastVertexOfColumn.put(column, orderVertex);
+                                }
+                    		}
+                    	}
                     }
                 }
             }

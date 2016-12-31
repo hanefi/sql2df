@@ -40,11 +40,10 @@ public class SelectGraphGenerator implements SelectItemVisitor{
     public void visit(AllColumns allColumns) {
         System.out.println("I am visiting allcolumns in SELECTGRAPHGENERATOR "+allColumns);
       
-        Set<String> columns = App.columnsOfTableMap.get(fromItem.toString());
-        
-        for(String column : columns){
-            metaVertex.putEdge(column, metaVertex.rootVertex, metaVertex.sinkVertex, App.dataTypeOfColumnMap.get(column));		
-        }
+    	for(String table : tables)
+    		for(String column : App.columnsOfTableMap.get(table)){
+    			metaVertex.putEdge(column, metaVertex.rootVertex, metaVertex.sinkVertex, App.dataTypeOfColumnMap.get(column));
+    		}
         
         //  SelectGraphGenerator selectGraphGenerator = new SelectGraphGenerator(metaVertex);
        // allColumns.accept(selectGraphGenerator);
