@@ -1,3 +1,4 @@
+package main;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,10 +11,14 @@ public class FunctionDef {
      * Name of the function
      */
     public String name;
+    
+    public String inputCardinality;
+    public String outputCardinality;
+    
     /**
      * Return type of the function
      */
-    public String returnType;
+    public String returnType;   
     /**
      * Ordered parameter list of the function
      */
@@ -25,8 +30,10 @@ public class FunctionDef {
      * @param returnType Return type of the function
      * @param parameters Ordered parameter list of the function
      */
-    public FunctionDef(String name, String returnType, List<String> parameters) {
+    public FunctionDef(String name, String inputCardinality, String outputCardinality, String returnType, List<String> parameters) {
         this.name = name;
+        this.inputCardinality = inputCardinality;
+        this.outputCardinality = outputCardinality;
         this.returnType = returnType;
         this.parameters = new ArrayList<>(parameters);
     }
@@ -39,6 +46,8 @@ public class FunctionDef {
         FunctionDef that = (FunctionDef) o;
 
         if (!name.equals(that.name)) return false;
+        if (!inputCardinality.equals(that.inputCardinality)) return false;
+        if (!outputCardinality.equals(outputCardinality)) return false;
         if (!returnType.equals(that.returnType)) return false;
         return parameters.equals(that.parameters);
 
@@ -47,8 +56,15 @@ public class FunctionDef {
     @Override
     public int hashCode() {
         int result = name.hashCode();
+        result = 31 * result + inputCardinality.hashCode();
+        result = 31 * result + outputCardinality.hashCode();
         result = 31 * result + returnType.hashCode();
         result = 31 * result + parameters.hashCode();
         return result;
+    }
+    
+    @Override
+    public String toString(){
+    	return "Function: "+name+" "+inputCardinality+" "+outputCardinality+" "+returnType+" "+parameters;
     }
 }

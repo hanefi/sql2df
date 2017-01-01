@@ -1,0 +1,4 @@
+digraph {
+"table: lineitem" -> "FILTER, id: 8"[label="l_returnflag[char (1)]"]
+"FILTER, id: 8" -> "SELECT, id: 9"[label="l_returnflag[char (1)]"]
+}

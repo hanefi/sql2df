@@ -1,0 +1,8 @@
+digraph {
+"l_returnflag, id: 1" -> "END_SELECT, id: 0"[label="[char (1)] = 8"]
+"l_returnflag, id: 2" -> "EqualsTo, id: 4"[label="[char (1)] = 8"]
+"1, id: 3" -> "EqualsTo, id: 4"[label="[integer] = 32"]
+"l_returnflag, id: 7" -> "Selection, id: 6"[label="[char (1)] = 8"]
+"EqualsTo, id: 4" -> "Selection, id: 6"[label="[boolean] = 8"]
+"Selection, id: 6" -> "END_FILTER, id: 5"[label="l_returnflag'[char (1)] = 8"]
+}

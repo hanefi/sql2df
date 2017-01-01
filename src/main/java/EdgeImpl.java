@@ -1,7 +1,10 @@
+package main;
 import net.sf.jsqlparser.statement.create.table.ColDataType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * The Edge implementation used for high level data-flow graph.
@@ -21,15 +24,15 @@ public class EdgeImpl implements Edge {
 	public Vertex getSourceVertex() {
 		return sourceVertex;
 	}
-	
+
 	public void setSourceVertex(Vertex sourceVertex) {
 		this.sourceVertex = sourceVertex;
 	}
-	
+
 	public Vertex getDestinationVertex() {
 		return destinationVertex;
 	}
-	
+
 	public void setDestinationVertex(Vertex destinationVertex) {
 		this.destinationVertex = destinationVertex;
 	}
@@ -49,6 +52,7 @@ public class EdgeImpl implements Edge {
 		edgeImpl.sourceVertex = sourceVertex;
 		edgeImpl.destinationVertex = destinationVertex;
         edgeImpl.dataType = dataType;
+        
 		edgeList.add(edgeImpl);
 		return edgeImpl;
 	}

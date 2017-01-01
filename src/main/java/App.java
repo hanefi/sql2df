@@ -1,3 +1,4 @@
+package main;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.*;
 import net.sf.jsqlparser.expression.operators.arithmetic.Addition;
@@ -16,10 +17,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 public class App {
 
@@ -29,21 +32,23 @@ public class App {
     public static Map<String, Map<String, String>> functionsMap = new HashMap<>();
     public static Map<String, Integer> storageSizeMap = new HashMap<>();
     public static List<FunctionDef> functionDefs = new LinkedList<>();
-
-
+    public static Graph graph;
+    
     /**
      * Generates the filter sub-graph.
      * @param filterExpression Expression that is used in filtering, WHERE clause of the query.
      * @param selectColumns Columns that are used in SELECT clause of the query.
      */
-    public static void generateFilterGraph(Expression filterExpression, Set<String> selectColumns) {
+    public static MetaVertex generateFilterGraph(Expression filterExpression, Set<String> selectColumns, Set<String> tables) {
         // Generates a sub-graph with one boolean filter output.
-        ExpressionGraphGenerator expressionGraphGenerator = new ExpressionGraphGenerator();
+        MetaVertex metaVertex = new MetaVertex("FILTER_SUBGRAPH");
+    	ExpressionGraphGenerator expressionGraphGenerator = new ExpressionGraphGenerator(metaVertex, tables);
         filterExpression.accept(expressionGraphGenerator);
-        Vertex filterRootVertex = expressionGraphGenerator.rootVertex;
-
-        Vertex endVertex = new VertexImpl("END_FILTER");    // Creates a dummy END vertex to connect all filtered columns.
-
+        //Vertex filterRootVertex = expressionGraphGenerator.rootVertex;
+               
+        //Vertex endVertex = new VertexImpl("END_FILTER");    // Creates a dummy END vertex to connect all filtered columns.
+        //metaVertex.putVertex(endVertex);
+        
         /**
          * Creates a selection vertex for each column that is used in SELECT clause.
          * The boolean filtering output, filterRootVertex, and the column to be filtered is connected to the selection vertex.
@@ -51,11 +56,18 @@ public class App {
          */
         for (String selectColumn : selectColumns) {
             Vertex selectVertex = new VertexImpl("Selection");
+            metaVertex.putVertex(selectVertex);
             String columnDataType = dataTypeOfColumnMap.get(selectColumn).toString().toLowerCase(Locale.ENGLISH);
-            ExpressionEdgeImpl.createEdge("", new VertexImpl(selectColumn), selectVertex, columnDataType);
-            ExpressionEdgeImpl.createEdge("", filterRootVertex, selectVertex, "boolean");
-            ExpressionEdgeImpl.createEdge(selectColumn + "'", selectVertex, endVertex, columnDataType);
+            metaVertex.subGraph.edges.add(ExpressionEdgeImpl.createEdge(selectColumn, metaVertex.rootVertex , selectVertex, columnDataType));
+            metaVertex.putEdge("", expressionGraphGenerator.rootVertex, selectVertex, "boolean");
+            metaVertex.subGraph.edges.add(ExpressionEdgeImpl.createEdge(selectColumn, selectVertex, metaVertex.sinkVertex, columnDataType));
         }
+        
+        //metaVertex.collapseChildren();
+        metaVertex.edgifySources();
+        System.out.println("Printing FILTER Subgraph"); //DEBUG
+        System.out.println(metaVertex.subGraph); //DEBUG
+        return metaVertex;
     }
 
 
@@ -63,14 +75,21 @@ public class App {
      * Generates the select sub-graph.
      * @param plainSelect Body of a plain select query
      */
-    public static void generateSelectGraph(PlainSelect plainSelect) {
-        Vertex endVertex = new VertexImpl("END_SELECT");    // Creates a dummy END vertex to connect all produced data.
-
+    public static MetaVertex generateSelectGraph(PlainSelect plainSelect, Set<String> tables) {
+       // Vertex endVertex = new VertexImpl("END_SELECT");    // Creates a dummy END vertex to connect all produced data.
+        MetaVertex metaVertex = new MetaVertex("SELECT_SUBGRAPH");
+        System.out.println(plainSelect.getFromItem());
         // A data-flow graph whose root is connected to the dummy END vertex is generated for each select item.
         for (SelectItem selectItem : plainSelect.getSelectItems()) {
-            SelectGraphGenerator selectGraphGenerator = new SelectGraphGenerator(endVertex);
-            selectItem.accept(selectGraphGenerator);
+        	System.out.println("HELLOOO "+selectItem); //DEBUG
+        	SelectGraphGenerator selectGraphGenerator = new SelectGraphGenerator(metaVertex, plainSelect.getFromItem(), tables);
+        	selectItem.accept(selectGraphGenerator);
         }
+        metaVertex.collapseChildren();
+        metaVertex.edgifySources();
+        System.out.println("Printing SELECT Subgraph"); //DEBUG
+        System.out.println(metaVertex.subGraph); //DEBUG
+        return metaVertex;
     }
 
 
@@ -80,9 +99,12 @@ public class App {
      * @param parameters Ordered list of function's parameters
      * @return Return type of the given function
      */
+    
+    //DEPRECATED
     public static String getReturnTypeOfFunctionWithParameters(String name, List<String> parameters) {
         // Searches given function in the defined functions list.
         for (FunctionDef functionDef : functionDefs) {
+        	//System.out.println("Function name: "+name + " " +functionDef); //DEBUG
             if (functionDef.name.equals(name)) {
                 if (functionDef.parameters.equals(parameters)) {
                     return functionDef.returnType;
@@ -110,7 +132,40 @@ public class App {
         }
     }
 
+    public static FunctionDef getFunctionDef(String name, List<String> parameters) {
+        // Searches given function in the defined functions list.
+        for (FunctionDef functionDef : functionDefs) {
+        	//System.out.println("Function name: "+name + " " +functionDef); //DEBUG
+            if (functionDef.name.equals(name)) {
+                if (functionDef.parameters.equals(parameters)) {
+                    return functionDef;
+                } else if (!functionDef.parameters.isEmpty() &&
+                        functionDef.parameters.get(0).equals("any")) {
+                    return functionDef;
+                }
+            }
+        }
 
+        if (!parameters.isEmpty()) {
+        	  for (FunctionDef functionDef : functionDefs) 
+                  if (functionDef.name.equals(name)) 
+                	  return new FunctionDef(name, functionDef.inputCardinality, functionDef.outputCardinality, parameters.get(0), parameters);
+        }
+
+        /**
+         * If the function with given parameters doesn't match any defined function
+         * and it doesn't have any argument then throw an exception.
+         */
+        try {
+            throw new Exception("unsupported function: " + name);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new FunctionDef("UNKNOWN", "1", "1", "unknown", new LinkedList<String>());
+        }
+    }
+
+    
+    
     public static void main(String[] args) throws Exception {
         readStorageSizes(); // Reads storage size of data types.
         readFunctions();    // Reads the signatures of functions.
@@ -118,14 +173,15 @@ public class App {
 
         // Extracts table schemas from each CREATE TABLE query.
         for (String query : createQueries) {
+            //System.out.println("The table create query is: " + query); //DEBUG
             learnTableSchema(query);
         }
 
         // Reads SELECT queries from the file specified in the first argument.
         List<String> selectQueries = readQueriesFromFile(new File(args[1]));
-
         // Processes each SELECT query to generate data-flow graphs.
         for (String selectQuery : selectQueries) {
+            System.out.println("A SELECT query: " + selectQuery);
             processQuery(selectQuery, args[1]);
         }
     }
@@ -139,7 +195,11 @@ public class App {
      */
     public static void readFunctions() throws FileNotFoundException {
         try {
-            Files.walk(Paths.get("res/function-declarations")).forEach(filePath -> {
+        	  Stream<Path> stream = Files.walk(Paths.get("res/function-declarations"));
+              Iterator<Path> iterator = stream.iterator();
+              while(iterator.hasNext())
+              {
+            	Path filePath = iterator.next();
                 if (Files.isRegularFile(filePath)) {
                     try {
                         readFunctionFromFile(filePath.toString());
@@ -147,7 +207,7 @@ public class App {
                         e.printStackTrace();
                     }
                 }
-            });
+              }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -171,9 +231,11 @@ public class App {
             String line = scanner.nextLine();
             String[] tokens = line.split(",");
             String name = tokens[0];
-            String returnType = tokens[1];
-            List<String> parameters = Arrays.asList(Arrays.copyOfRange(tokens, 2, tokens.length));
-            FunctionDef functionDef = new FunctionDef(name, returnType, parameters);
+            String inputCardinality = tokens[1];
+            String outputCardinality = tokens[2];
+            String returnType = tokens[3];
+            List<String> parameters = Arrays.asList(Arrays.copyOfRange(tokens, 4, tokens.length));
+            FunctionDef functionDef = new FunctionDef(name, inputCardinality, outputCardinality, returnType, parameters);
             functionDefs.add(functionDef);
         }
         scanner.close();
@@ -193,10 +255,12 @@ public class App {
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
             String[] tokens = line.split(",");
-            System.out.println(Arrays.asList(tokens));
+            System.out.println("FUNCTION: "+Arrays.asList(tokens));
             String functionName = tokens[0];
-            String parameter = tokens[1];
-            String result = tokens[2];
+            String inputCardinality = tokens[1]; //USELESS FOR NOW
+            String outputCardinality = tokens[2]; //USELESS FOR NOW
+            String parameter = tokens[3];
+            String result = tokens[4];
             if (!functionsMap.containsKey(functionName)) {
                 functionsMap.put(functionName, new HashMap<String, String>());
             }
@@ -223,6 +287,8 @@ public class App {
         Select select = (Select) CCJSqlParserUtil.parse(selectQuery);   // Parses a SELECT query.
         SelectBody selectBody = select.getSelectBody();
 
+        //System.out.println("Processing query: " + selectQuery); //DEBUG
+
         Set<String> tables = extractTables(selectBody); // Extracts table names from the SELECT query.
 
         // Extracts column names from the SELECT query.
@@ -234,47 +300,73 @@ public class App {
 
         Map<String, Vertex> lastVertexOfColumn = new HashMap<>();   // Keeps the Vertex that used a column last.
 
+        graph = new Graph();
+        MetaVertex filterVertex = new MetaVertex("UNKNOWN");;
+        MetaVertex selectVertex = new MetaVertex("UNKNOWN");
+        Vertex constantVertex = new VertexImpl("CONSTANT"); 
+        graph.putVertex(constantVertex);
+
         if (selectBody instanceof PlainSelect) {
             PlainSelect plainSelect = (PlainSelect) selectBody;
-
-            generateSelectGraph(plainSelect);   // Generates the SELECT sub-graph of the query.
-
+            //System.out.println("Plain Select Body: " + plainSelect); //DEBUG
+            System.out.println("Before generating SELECT Graph"); //DEBUG
+           
+            selectVertex = generateSelectGraph(plainSelect, tables);   // Generates the SELECT sub-graph of the query.
+            selectVertex.parentGraph = graph;
+            graph.putVertex(selectVertex);
+            
+            System.out.println("Before generating WHERE clause"); //DEBUG
             Expression expression = plainSelect.getWhere(); // WHERE clause of the SELECT query.
+            //System.out.println("WHERE Clause: " + expression); //DEBUG
             if (expression != null) {
-                generateFilterGraph(expression, selectColumns); // Generates the FILTER sub-graph of the query.
-
-                Vertex filterVertex = new VertexImpl("FILTER"); // Creates the FILTER node in the high level graph.
-
+                System.out.println("Before generating FILTER Graph"); //DEBUG
+                filterVertex = generateFilterGraph(expression, selectColumns, tables); // Generates the FILTER sub-graph of the query.
+                filterVertex.parentGraph = graph;
+                graph.putVertex(filterVertex);
+                //Vertex filterVertex = new VertexImpl("FILTER"); // Creates the FILTER node in the high level graph.
                 // Connects each column edge from their tables to FILTER node.
                 for (String column : allColumns) {
                     String table = tableOfColumnMap.get(column);
                     String dataType = dataTypeOfColumnMap.get(column);
-                    EdgeImpl.createEdge(column, TableVertex.getTableVertex(table), filterVertex, dataType);
+                    ExpressionEdgeImpl edge = ExpressionEdgeImpl.createEdge(column, TableVertex.getTableVertex(table), filterVertex, dataType);
+                    graph.edges.add(edge);
                     lastVertexOfColumn.put(column, filterVertex);
                 }
             }
 
             List<Expression> groupByColumns = plainSelect.getGroupByColumnReferences(); // Columns used for grouping
             if (groupByColumns != null) {
-                Vertex groupVertex = new VertexImpl("GROUP");   // Creates the GROUP node in the high level graph.
-
+                Vertex groupVertex = new VertexImpl("GROUP", "N", "N^2");   // Creates the GROUP node in the high level graph.
+                graph.putVertex(groupVertex);
                 // Connects each column that is used for grouping from their last vertex to GROUP vertex.
                 for (Expression groupByColumn : groupByColumns) {
                     String columnName = groupByColumn.toString().toLowerCase(Locale.ENGLISH);
                     String dataType = getDataType(groupByColumn);
                     Vertex lastVertex = lastVertexOfColumn.get(columnName);
-                    EdgeImpl.createEdge(columnName, lastVertex, groupVertex, dataType);
+                    ExpressionEdgeImpl edge = ExpressionEdgeImpl.createEdge(columnName, lastVertex, groupVertex, dataType);
+                    graph.edges.add(edge);
                     lastVertexOfColumn.put(columnName, groupVertex);
                 }
             }
 
-            Vertex selectVertex = new VertexImpl("SELECT"); // Creates the SELECT node in the high level graph.
+            //Vertex selectVertex = new VertexImpl("SELECT"); // Creates the SELECT node in the high level graph.
 
             // Connects each column that is used in SELECT clause from their last vertex to SELECT vertex.
             for (String column : selectColumns) {
+                //System.out.println("Connecting column " + column + " to select vertex"); //DEBUG
                 String dataType = dataTypeOfColumnMap.get(column);
                 Vertex lastVertex = lastVertexOfColumn.get(column);
-                EdgeImpl.createEdge(column, lastVertex, selectVertex, dataType);
+                //System.out.println("Column info: "+ dataType + " " + lastVertex); //DEBUG
+                if(lastVertex != null){
+                	ExpressionEdgeImpl edge = ExpressionEdgeImpl.createEdge(column, lastVertex, selectVertex, dataType);
+                    graph.edges.add(edge);
+                }
+                else{
+                    String table = tableOfColumnMap.get(column);
+                    ExpressionEdgeImpl edge = ExpressionEdgeImpl.createEdge(column, TableVertex.getTableVertex(table), selectVertex, dataType);
+                    graph.edges.add(edge);
+                }
+                lastVertexOfColumn.put(column, selectVertex);
             }
 
             List<SelectItem> selectItems = plainSelect.getSelectItems();    // Selected items in the SELECT clause
@@ -299,15 +391,16 @@ public class App {
 
             List<OrderByElement> orderByColumns = plainSelect.getOrderByElements(); // Columns used in ordering
             if (orderByColumns != null) {
-                Vertex orderVertex = new VertexImpl("ORDER");   // Creates the ORDER vertex.
-
+                Vertex orderVertex = new VertexImpl("ORDER", "N", "N");   // Creates the ORDER vertex.
+                graph.putVertex(orderVertex);
                 // Connects each column used for ordering from their last vertex to ORDER vertex.
                 for (OrderByElement orderByColumn : orderByColumns) {
                     Expression orderByExpression = orderByColumn.getExpression();
                     String columnName = orderByExpression.toString().toLowerCase(Locale.ENGLISH);
                     String dataType = getDataType(orderByExpression);
                     Vertex lastVertex = lastVertexOfColumn.get(columnName);
-                    EdgeImpl.createEdge(columnName, lastVertex, orderVertex, dataType);
+                    ExpressionEdgeImpl edge = ExpressionEdgeImpl.createEdge(columnName, lastVertex, orderVertex, dataType);
+                    graph.edges.add(edge);
                     lastVertexOfColumn.put(columnName, orderVertex);
                 }
 
@@ -319,8 +412,10 @@ public class App {
                  * So all non key SELECT items are connected to ORDER vertex from their last vertex.
                  */
                 for (SelectItem selectItem : selectItems) {
+                	System.out.println("Select Item:" + selectItem);
                     if (selectItem instanceof SelectExpressionItem) {
                         SelectExpressionItem selectExpressionItem = (SelectExpressionItem) selectItem;
+                        System.out.println("Select Expression Item:" + selectExpressionItem);
                         Alias alias = selectExpressionItem.getAlias();
                         String name = selectItem.toString();
                         if (alias != null) {
@@ -330,17 +425,45 @@ public class App {
 
                         if (lastVertex != orderVertex) {
                             String dataType = getDataType(selectExpressionItem.getExpression());
-                            EdgeImpl.createEdge(name, selectVertex, orderVertex, dataType);
+                            ExpressionEdgeImpl edge = ExpressionEdgeImpl.createEdge(name, selectVertex, orderVertex, dataType);
+                            graph.edges.add(edge);
                             lastVertexOfColumn.put(name, orderVertex);
                         }
+                    }
+                    if (selectItem instanceof AllColumns){
+                    	for(String table : tables){
+                    		for(String column : App.columnsOfTableMap.get(table)){
+                                Vertex lastVertex = lastVertexOfColumn.get(column);
+                                if (lastVertex != orderVertex) {
+                                    String dataType = App.dataTypeOfColumnMap.get(column);
+                                    ExpressionEdgeImpl edge = ExpressionEdgeImpl.createEdge(column, selectVertex, orderVertex, dataType);
+                                    graph.edges.add(edge);
+                                    lastVertexOfColumn.put(column, orderVertex);
+                                }
+                    		}
+                    	}
                     }
                 }
             }
         }
-
+        
+        System.out.println("IS_VALID "+(selectVertex.parentGraph == graph));
+        System.out.println(graph.edges+" "+graph);
+        filterVertex.createIncomingConnections(constantVertex);
+        selectVertex.createIncomingConnections(constantVertex);
+        
+        for(Vertex v : TableVertex.tableVertexMap.values())
+        	graph.putVertex(v);
+         
+        filterVertex.mergeWithParent();
+        selectVertex.mergeWithParent();
         // All graphs are printed to files
-        generateGraphFile(new File(queryName + ".dot"));
-        generateSubGraphsFile(new File(queryName + ".filter.dot"));
+
+
+        generateGraphFile(graph, new File(queryName + ".dot"));
+        generateGraphFile(selectVertex.subGraph, new File(queryName + ".select.dot"));
+        generateGraphFile(filterVertex.subGraph, new File(queryName + ".filter.dot"));
+
     }
 
 
@@ -351,15 +474,16 @@ public class App {
      * @param file File to which graph will be printed.
      * @throws FileNotFoundException
      */
-    public static void generateGraphFile(File file) throws FileNotFoundException {
+    public static void generateGraphFile(Graph graph, File file) throws FileNotFoundException {
         PrintStream stream = new PrintStream(file);
-        stream.println("digraph {");
-        for (Edge edge : EdgeImpl.edgeList) {
+       /* stream.println("digraph {");
+        for (Edge edge : graph.edges) {
              System.out.println(edge+ " "+ edge.getSourceVertex());
             stream.println('"' + edge.getSourceVertex().toString() + '"' + " -> " + '"'
                     + edge.getDestinationVertex().toString() + '"' + "[label=\"" + edge.toString() + "\"]");
         }
-        stream.println("}");
+        stream.println("}");*/
+        stream.println(graph);
         stream.close();
     }
 
@@ -504,11 +628,14 @@ public class App {
 
         String tableName = createTable.getTable().getName().toLowerCase(Locale.ENGLISH);
 
+        //System.out.println("In table:" + tableName); //DEBUG
+
         Set<String> columns = new HashSet<>();
 
         for (ColumnDefinition columnDefinition : createTable.getColumnDefinitions()) {
             String columnName = columnDefinition.getColumnName().toLowerCase(Locale.ENGLISH);
             ColDataType dataType = columnDefinition.getColDataType();
+            //System.out.println(tableName + " " + columnName + " " + dataType ); //DEBUG:
             tableOfColumnMap.put(columnName, tableName);
             dataTypeOfColumnMap.put(columnName, dataType.toString().toLowerCase(Locale.ENGLISH));
             columns.add(columnName);
@@ -526,7 +653,10 @@ public class App {
     public static void readStorageSizes() {
 
         try {
-            Files.walk(Paths.get("res/data-types")).forEach(filePath -> {
+            Stream<Path> stream = Files.walk(Paths.get("res/data-types"));
+            Iterator<Path> iterator = stream.iterator();
+            while(iterator.hasNext()){
+            	Path filePath = iterator.next();
                 if (Files.isRegularFile(filePath)) {
                     try {
                         readStorageSizeFromFile(filePath.toString());
@@ -534,7 +664,7 @@ public class App {
                         e.printStackTrace();
                     }
                 }
-            });
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
