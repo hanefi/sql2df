@@ -385,6 +385,7 @@ public class App {
                     Vertex lastVertex = lastVertexOfColumn.get(name);
                     if (lastVertex == null) {
                         lastVertexOfColumn.put(name, selectVertex);
+                        dataTypeOfColumnMap.put(name, "bigint"); //BAD FIX HERE
                     }
                 }
             }

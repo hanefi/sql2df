@@ -214,7 +214,10 @@ public class MetaVertex extends Vertex {
 		for(int j = outgoingEdges.size()-1; j >= 0; j--){
 			parentGraph.removeEdge(outgoingEdges.get(j));
 		}
-
+		for(int j = sinkVertex.getIncomingEdges().size()-1; j >=0 ; j--){
+			subGraph.removeEdge(sinkVertex.getIncomingEdges().get(j));
+		}
+		
 		subGraph.vertices.remove(rootVertex.toString());
 		subGraph.vertices.remove(sinkVertex.toString());
 		

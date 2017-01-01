@@ -280,8 +280,13 @@ public class ExpressionGraphGenerator implements ExpressionVisitor, ItemsListVis
 
         ExpressionGraphGenerator rightGraphGenerator = new ExpressionGraphGenerator(metaVertex, tables);
         rightExpression.accept(rightGraphGenerator);
-
-        rootVertex = new VertexImpl(operator);
+        
+        if (leftExpression.getClass() == Column.class && rightExpression.getClass() == Column.class) {
+            rootVertex = new VertexImpl(operator, "N", "N");
+        }
+        else{
+        	rootVertex = new VertexImpl(operator);
+        }
         metaVertex.putVertex(rootVertex);
 
         metaVertex.putEdge("", leftGraphGenerator.rootVertex, rootVertex, leftGraphGenerator.dataType);
