@@ -455,8 +455,8 @@ public class App {
         for(Vertex v : TableVertex.tableVertexMap.values())
         	graph.putVertex(v);
          
-        //filterVertex.mergeWithParent();
-        //selectVertex.mergeWithParent();
+        filterVertex.mergeWithParent();
+        selectVertex.mergeWithParent();
         // All graphs are printed to files
 
 
