@@ -1,0 +1,23 @@
+digraph {
+"JOIN EqualsTo, id: 26" -> "And, id: 23"[label="[boolean] = 8", headlabel="1", taillabel="N" ]
+"JOIN EqualsTo, id: 29" -> "And, id: 23"[label="[boolean] = 8", headlabel="1", taillabel="N" ]
+"And, id: 23" -> "And, id: 22"[label="[boolean] = 8", headlabel="1", taillabel="1" ]
+"JOIN EqualsTo, id: 32" -> "And, id: 22"[label="[boolean] = 8", headlabel="1", taillabel="N" ]
+"And, id: 22" -> "And, id: 21"[label="[boolean] = 8", headlabel="1", taillabel="1" ]
+"JOIN EqualsTo, id: 35" -> "And, id: 21"[label="[boolean] = 8", headlabel="1", taillabel="N" ]
+"And, id: 21" -> "And, id: 20"[label="[boolean] = 8", headlabel="1", taillabel="1" ]
+"JOIN EqualsTo, id: 38" -> "And, id: 20"[label="[boolean] = 8", headlabel="1", taillabel="N" ]
+"And, id: 20" -> "And, id: 19"[label="[boolean] = 8", headlabel="1", taillabel="1" ]
+"JOIN EqualsTo, id: 41" -> "And, id: 19"[label="[boolean] = 8", headlabel="1", taillabel="N" ]
+"And, id: 19" -> "And, id: 18"[label="[boolean] = 8", headlabel="1", taillabel="1" ]
+"EqualsTo, id: 44" -> "And, id: 18"[label="[boolean] = 8", headlabel="1", taillabel="1" ]
+"And, id: 18" -> "And, id: 17"[label="[boolean] = 8", headlabel="1", taillabel="1" ]
+"GreaterThanEquals, id: 47" -> "And, id: 17"[label="[boolean] = 8", headlabel="1", taillabel="1" ]
+"Addition, id: 49" -> "MinorThan, id: 52"[label="[interval] = 128", headlabel="1", taillabel="1" ]
+"And, id: 17" -> "And, id: 16"[label="[boolean] = 8", headlabel="1", taillabel="1" ]
+"MinorThan, id: 52" -> "And, id: 16"[label="[boolean] = 8", headlabel="1", taillabel="1" ]
+"And, id: 16" -> "Selection, id: 53"[label="[boolean] = 8", headlabel="1", taillabel="1" ]
+"And, id: 16" -> "Selection, id: 54"[label="[boolean] = 8", headlabel="1", taillabel="1" ]
+"And, id: 16" -> "Selection, id: 55"[label="[boolean] = 8", headlabel="1", taillabel="1" ]
+}
+

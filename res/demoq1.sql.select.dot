@@ -1,0 +1,6 @@
+digraph {
+"count, id: 7" -> "OUTPUTS, id: 6"[label="cnt[bigint] = 64", headlabel="1", taillabel="1" ]
+"INPUTS, id: 5" -> "count, id: 7"[label="l_returnflag[char (1)] = 8", headlabel="N", taillabel="1" ]
+"INPUTS, id: 5" -> "OUTPUTS, id: 6"[label="l_partkey[integer] = 32", headlabel="1", taillabel="1" ]
+}
+

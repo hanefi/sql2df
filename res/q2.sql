@@ -1,6 +1,4 @@
 SELECT
-    l_returnflag
+    *, count(*)
 FROM
-    lineitem
-WHERE 
-    l_returnflag = 1;
+    lineitem;

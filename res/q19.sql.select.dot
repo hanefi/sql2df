@@ -1,0 +1,5 @@
+digraph {
+"Subtraction, id: 10" -> "Multiplication, id: 8"[label="[decimal (15, 2)] = 60", headlabel="1", taillabel="1" ]
+"Multiplication, id: 8" -> "sum, id: 7"[label="[decimal (15, 2)] = 60", headlabel="N", taillabel="1" ]
+}
+

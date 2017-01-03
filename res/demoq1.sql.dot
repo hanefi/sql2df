@@ -1,0 +1,7 @@
+digraph {
+"table: lineitem" -> "meta: SELECT_SUBGRAPH, id: 2"[label="l_partkey[integer] = 32", headlabel="1", taillabel="1" ]
+"table: lineitem" -> "meta: SELECT_SUBGRAPH, id: 2"[label="l_returnflag[char (1)] = 8", headlabel="1", taillabel="1" ]
+"meta: SELECT_SUBGRAPH, id: 2" -> "ORDER, id: 10"[label="l_partkey[integer] = 32", headlabel="N", taillabel="1" ]
+"meta: SELECT_SUBGRAPH, id: 2" -> "ORDER, id: 10"[label="cnt[bigint] = 64", headlabel="N", taillabel="1" ]
+}
+

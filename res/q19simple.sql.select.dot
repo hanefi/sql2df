@@ -1,0 +1,8 @@
+digraph {
+"sum, id: 9" -> "OUTPUTS, id: 6"[label="revenue[decimal (15, 2)] = 60"]
+"Multiplication, id: 12" -> "sum, id: 9"[label="[decimal (15, 2)] = 60"]
+"Subtraction, id: 18" -> "Multiplication, id: 12"[label="[decimal (15, 2)] = 60"]
+"INPUTS, id: 5" -> "Multiplication, id: 12"[label="l_extendedprice[decimal (15, 2)] = 60"]
+"INPUTS, id: 5" -> "Subtraction, id: 18"[label="l_discount[decimal (15, 2)] = 60"]
+"INPUTS, id: 5" -> "Subtraction, id: 18"[label="1[integer] = 32"]
+}
