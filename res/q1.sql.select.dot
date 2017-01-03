@@ -1,0 +1,9 @@
+digraph {
+"Subtraction, id: 16" -> "Multiplication, id: 14"[label="[decimal (15, 2)] = 60", headlabel="1", taillabel="1" ]
+"Multiplication, id: 14" -> "sum, id: 13"[label="[decimal (15, 2)] = 60", headlabel="N", taillabel="1" ]
+"Subtraction, id: 23" -> "Multiplication, id: 21"[label="[decimal (15, 2)] = 60", headlabel="1", taillabel="1" ]
+"Multiplication, id: 21" -> "Multiplication, id: 20"[label="[decimal (15, 2)] = 60", headlabel="1", taillabel="1" ]
+"Addition, id: 26" -> "Multiplication, id: 20"[label="[decimal (15, 2)] = 60", headlabel="1", taillabel="1" ]
+"Multiplication, id: 20" -> "sum, id: 19"[label="[decimal (15, 2)] = 60", headlabel="N", taillabel="1" ]
+}
+

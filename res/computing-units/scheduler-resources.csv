@@ -1,0 +1,6 @@
+Node Type,Available,Latency,Operations,,,,,,,,
+ALU,2,1,Addition,Subtraction,Multiplication,MinorThanEquals,And,EqualsTo,GreaterThanEquals,Or,MinorThan
+SORT,1,N,ORDER,,,,,,,,
+JOIN,1,2N,JOIN EqualsTo,GROUP,,,,,,,
+FILTER,4,1,Selection,,,,,,,,
+AGGREGATOR,2,N,sum,avg,count,,,,,,

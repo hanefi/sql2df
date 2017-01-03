@@ -1,27 +1,27 @@
-avg,numeric,smallint
-avg,numeric,integer
-avg,numeric,bigint
-avg,double precision,real
-avg,double precision,double precision
-avg,numeric,numeric
-avg,interval,interval
-bit_and,smallint,smallint
-bit_and,integer,integer
-bit_and,bigint,bigint
-bit_and,bit,bit
-bit_or,smallint,smallint
-bit_or,integer,integer
-bit_or,bigint,bigint
-bit_or,bit,bit
-count,bigint
-count,bigint,any
-every,boolean,boolean
-json_agg,json,any
-jsonb_agg,jsonb,any
-json_object_agg,json,any,any
-jsonb_object_agg,jsonb,any,any
-string_agg,text,text,text
-string_agg,bytea,bytea,bytea
-sum,bigint,smallint
-sum,bigint,integer
-sum,numeric,bigint
+avg,N,1,numeric,smallint,
+avg,N,1,numeric,integer,
+avg,N,1,numeric,bigint,
+avg,N,1,double precision,real,
+avg,N,1,double precision,double precision,
+avg,N,1,numeric,numeric,
+avg,N,1,interval,interval,
+bit_and,2,1,smallint,smallint,
+bit_and,2,1,integer,integer,
+bit_and,2,1,bigint,bigint,
+bit_and,2,1,bit,bit,
+bit_or,2,1,smallint,smallint,
+bit_or,2,1,integer,integer,
+bit_or,2,1,bigint,bigint,
+bit_or,2,1,bit,bit,
+count,N,1,bigint,,
+count,N,1,bigint,any,
+every,N,1,boolean,boolean,
+json_agg,N,1,json,any,
+jsonb_agg,N,1,jsonb,any,
+json_object_agg,N,1,json,any,any
+jsonb_object_agg,N,1,jsonb,any,any
+string_agg,N,1,text,text,text
+string_agg,N,1,bytea,bytea,bytea
+sum,N,1,bigint,smallint,
+sum,N,1,bigint,integer,
+sum,N,1,numeric,bigint,

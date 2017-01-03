@@ -101,7 +101,7 @@ public class Graph {
     	
     	for(int i = 0; i < schedule.size(); i++){
     		output += "subgraph cluster"+i+" {\n";
-    		output += "label=\"Instruction "+i+"\";\n";
+    		output += "label=\"CSUF "+i+"\";\n";
     		//output += "rank=same;\n";
     		for(Vertex v : schedule.get(i))
     			output += "\""+v+"\";";
