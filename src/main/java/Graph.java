@@ -4,19 +4,22 @@ import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 
 public class Graph {
 	public Map<String, Vertex> vertices;
-	public List<ExpressionEdgeImpl> edges;
+	public Set<ExpressionEdgeImpl> edges;
 	
 	public Graph(){
 		vertices = new HashMap<>();
-		edges = new LinkedList<>();
+		edges = new HashSet<>();
 	}
 	
     public Vertex getVertexFromString(String vertexString){
@@ -28,6 +31,8 @@ public class Graph {
     }
     
     public void removeEdge(ExpressionEdgeImpl e){
+    	//System.out.println("Edge to be removed " + e.getSourceVertex()+" "+e.getDestinationVertex());
+    	
     	e.getSourceVertex().getOutgoingEdges().remove(e);
     	e.getDestinationVertex().getIncomingEdges().remove(e);
     	edges.remove(e);
