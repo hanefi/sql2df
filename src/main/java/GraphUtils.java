@@ -52,7 +52,7 @@ public class GraphUtils{
         if(lineMatcher.find()){
             Vertex sourceVertex  = graph.getVertexFromString(lineMatcher.group(1));
             Vertex destinationVertex  = graph.getVertexFromString(lineMatcher.group(2));
-            ExpressionEdgeImpl edge = ExpressionEdgeImpl.fromString(lineMatcher.group(3), sourceVertex, destinationVertex);
+            EdgeImpl edge = EdgeImpl.fromString(lineMatcher.group(3), sourceVertex, destinationVertex);
             graph.edges.add(edge);
         }
     }
@@ -81,7 +81,7 @@ public class GraphUtils{
     public List<List<Vertex>> getPathsWithColumn(String columnLabel, Vertex startVertex, Map<Vertex, List<List<Vertex>>> visited){
     	List<List<Vertex>> paths = new LinkedList<>();
     	visited.put(startVertex, paths);
-    	for(ExpressionEdgeImpl edge: startVertex.getOutgoingEdges()){
+    	for(EdgeImpl edge: startVertex.getOutgoingEdges()){
     		if(edge.edgeName.equals(columnLabel)){
     			Vertex destination = edge.getDestinationVertex();
     			if(destination == startVertex)

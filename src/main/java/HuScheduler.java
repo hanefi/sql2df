@@ -36,7 +36,7 @@ public class HuScheduler {
 				for(Vertex v : p.get(i)){
 					if(!visited.contains(v)){
 						boolean neighborsVisited = true;
-						for(ExpressionEdgeImpl e : v.getIncomingEdges())
+						for(EdgeImpl e : v.getIncomingEdges())
 							if(!visited.contains(e.getSourceVertex()))
 								neighborsVisited = false;
 						if(neighborsVisited){
@@ -111,12 +111,12 @@ public class HuScheduler {
 			Vertex v = DAGQueue.remove();
 			
 			int label = 0;
-			for(ExpressionEdgeImpl e : v.getOutgoingEdges())
+			for(EdgeImpl e : v.getOutgoingEdges())
 				label = Math.max(label, labels.get(e.getDestinationVertex()) + 1);
 			
 			labels.put(v, label);
 			
-			for(ExpressionEdgeImpl e : v.getIncomingEdges()){
+			for(EdgeImpl e : v.getIncomingEdges()){
 				Vertex neighbor = e.getSourceVertex();
 				int newIndegree = indegrees.get(neighbor) - 1;
 				indegrees.put(neighbor, newIndegree);

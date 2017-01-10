@@ -42,7 +42,7 @@ public class SelectGraphGenerator implements SelectItemVisitor{
       
     	for(String table : tables)
     		for(String column : App.columnsOfTableMap.get(table)){
-    			metaVertex.putEdge(column, metaVertex.rootVertex, metaVertex.sinkVertex, App.dataTypeOfColumnMap.get(column));
+    			metaVertex.subGraph.putEdge(column, metaVertex.rootVertex, metaVertex.sinkVertex, App.dataTypeOfColumnMap.get(column));
     		}
         
         //  SelectGraphGenerator selectGraphGenerator = new SelectGraphGenerator(metaVertex);
@@ -66,7 +66,7 @@ public class SelectGraphGenerator implements SelectItemVisitor{
         if (selectExpressionItem.getAlias() != null) {
             name = selectExpressionItem.getAlias().getName();
         }
-        metaVertex.putEdge(name, expressionGraphGenerator.rootVertex, metaVertex.sinkVertex, expressionGraphGenerator.dataType);		
+        metaVertex.subGraph.putEdge(name, expressionGraphGenerator.rootVertex, metaVertex.sinkVertex, expressionGraphGenerator.dataType);		
         //Should be to SINK
     }
 }

@@ -108,7 +108,7 @@ public class ListScheduler extends HuScheduler{
 					for(Vertex v : p.get(i)){
 						if(!inProgress.containsKey(v) && !visited.contains(v) && resource.canParseVertex(v) && allowedVertices.contains(v)){
 							boolean neighborsVisited = true;
-							for(ExpressionEdgeImpl e : v.getIncomingEdges())
+							for(EdgeImpl e : v.getIncomingEdges())
 								if(!visited.contains(e.getSourceVertex()))
 									neighborsVisited = false;
 							if(neighborsVisited){

@@ -9,8 +9,8 @@ import java.util.regex.Pattern;
 public class VertexImpl extends Vertex {
 
 	//private String vertexName;
-	private int id;
-	private static int cnt = 0;
+	//private int id;
+	//private static int cnt = 0;
 
 	public VertexImpl() {
 		this("Vertex");
@@ -21,23 +21,17 @@ public class VertexImpl extends Vertex {
      * @param vertexName Name of the vertex
      */
 	public VertexImpl(String vertexName) {
-		this.vertexName = vertexName;
-        this.id = cnt;
-		cnt++;
+		super(vertexName);
 	}
 
 	public VertexImpl(String vertexName, int id){
-		this.vertexName = vertexName;
-		this.id = id;
-		cnt = Math.max(id + 1, cnt);
+		super(vertexName, id);
 	}
 	
 	public VertexImpl(String vertexName, String inputCardinality, String outputCardinality){
-		this.vertexName = vertexName;
+		super(vertexName);
 		this.inputCardinality = inputCardinality;
 		this.outputCardinality = outputCardinality;
-        this.id = cnt;
-		cnt++;
 	}
 
 

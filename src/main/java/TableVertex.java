@@ -16,12 +16,11 @@ public class TableVertex extends Vertex {
 	
 
 	public TableVertex(String tableName) {
-		this.vertexName = tableName;
+		super(tableName);
 	}
 	
 	public TableVertex(String tableName, int id) {
-		this(tableName);
-		this.id = id;
+		super(tableName, id);
 	}
 
 	@Override

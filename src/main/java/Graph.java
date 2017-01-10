@@ -15,7 +15,7 @@ import java.util.TreeSet;
 
 public class Graph {
 	public Map<String, Vertex> vertices;
-	public Set<ExpressionEdgeImpl> edges;
+	public Set<EdgeImpl> edges;
 	
 	public Graph(){
 		vertices = new HashMap<>();
@@ -30,7 +30,7 @@ public class Graph {
         return vertices.get(vertexString);
     }
     
-    public void removeEdge(ExpressionEdgeImpl e){
+    public void removeEdge(EdgeImpl e){
     	//System.out.println("Edge to be removed " + e.getSourceVertex()+" "+e.getDestinationVertex());
     	
     	e.getSourceVertex().getOutgoingEdges().remove(e);
@@ -41,12 +41,19 @@ public class Graph {
 	public void putVertex(Vertex vertex){
 		vertices.put(vertex.toString(), vertex);
 	}
+	
+	public void putEdge(String edgeName, Vertex sourceVertex, Vertex destinationVertex, String dataType){		
+		if(edgeName.equals(""))
+			edgeName = "Unnamed_" + EdgeImpl.getNextEdgeID();
+		EdgeImpl insideEdge = new EdgeImpl(edgeName, sourceVertex, destinationVertex, dataType);
+		edges.add(insideEdge);
+	}
     
     @Override
     public String toString() {
     	String output = "";
     	output += "digraph {\n";
-        for (ExpressionEdgeImpl edge : edges) {
+        for (EdgeImpl edge : edges) {
             //System.out.println(edge+ " "+ edge.getSourceVertex());
         	String tail = edge.getSourceVertex().getOutputCardinality();
         	String head = edge.getDestinationVertex().getInputCardinality();
@@ -96,7 +103,7 @@ public class Graph {
 				output += "}\n";
     	}
     	
-        for (ExpressionEdgeImpl edge : edges) {
+        for (EdgeImpl edge : edges) {
             //System.out.println(edge+ " "+ edge.getSourceVertex());
         	String tail = edge.getSourceVertex().getOutputCardinality();
         	String head = edge.getDestinationVertex().getInputCardinality();
@@ -125,7 +132,7 @@ public class Graph {
     	}
     	
     	
-        for (ExpressionEdgeImpl edge : edges) {
+        for (EdgeImpl edge : edges) {
             //System.out.println(edge+ " "+ edge.getSourceVertex());
         	String tail = edge.getSourceVertex().getOutputCardinality();
         	String head = edge.getDestinationVertex().getInputCardinality();
