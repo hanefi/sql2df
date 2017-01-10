@@ -58,6 +58,16 @@ public class Graph {
         return output;
     }
     
+    
+    public void collapseAllMetaVertices(){
+    	List<MetaVertex> metaVertexes = new LinkedList<>();
+    	for(Vertex v : vertices.values())
+    		if(v instanceof MetaVertex)
+    			metaVertexes.add((MetaVertex)v);
+    	for(MetaVertex v : metaVertexes)
+    		v.mergeWithParent();
+    }
+    
     public String printAndCollapse(){
     	String output = "";
     	output += "digraph {\n";
@@ -98,6 +108,7 @@ public class Graph {
         output += "}\n";
         return output;
     }
+    
     
     
     public String printWithSchedule(List<List<Vertex>> schedule){

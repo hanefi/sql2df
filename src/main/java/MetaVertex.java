@@ -69,7 +69,9 @@ public class MetaVertex extends Vertex {
 		
 	private void putEdges(List<Vertex> vertices, Graph parentGraph){
 		for(Vertex vertex: vertices){
-			for(ExpressionEdgeImpl edge: vertex.getOutgoingEdges()){
+			
+			List<ExpressionEdgeImpl> outgoingEdges = new LinkedList<>(vertex.getOutgoingEdges());
+			for(ExpressionEdgeImpl edge: outgoingEdges){
 				Vertex destinationVertex = edge.getDestinationVertex();
 				if(!subGraph.vertices.containsKey(destinationVertex.toString())){
 					ExpressionEdgeImpl newSubgraphEdge = ExpressionEdgeImpl.createEdge(edge.edgeName, vertex, sinkVertex, edge.dataType);
@@ -84,7 +86,8 @@ public class MetaVertex extends Vertex {
 				}
 			}
 			/* Don't add the intermediary edges twice */
-			for(ExpressionEdgeImpl edge: vertex.getIncomingEdges()){
+			List<ExpressionEdgeImpl> incomingEdges = new LinkedList<>(vertex.getIncomingEdges());
+			for(ExpressionEdgeImpl edge: incomingEdges){
 				Vertex sourceVertex = edge.getSourceVertex();
 				if(!subGraph.vertices.containsKey(sourceVertex.toString())){
 					ExpressionEdgeImpl newSubgraphEdge = ExpressionEdgeImpl.createEdge(edge.edgeName, rootVertex, vertex, edge.dataType);
@@ -186,7 +189,13 @@ public class MetaVertex extends Vertex {
 			}
 		}
 
-
+		for(int j = incomingEdges.size()-1; j >= 0; j--){
+			parentGraph.removeEdge(incomingEdges.get(j));
+		}
+		for(int j = inputEdges.size()-1; j >= 0; j--){
+			subGraph.removeEdge(inputEdges.get(j));
+		}
+		
 		for(int i = outputEdges.size()-1 ; i >= 0; i--){
 			Boolean isRemoved = false;
 			for(int j = outgoingEdges.size()-1; j >= 0 ; j--){
@@ -208,14 +217,9 @@ public class MetaVertex extends Vertex {
 
 		}
 		
-		for(int j = incomingEdges.size()-1; j >= 0; j--){
-			parentGraph.removeEdge(incomingEdges.get(j));
-		}
+
 		for(int j = outgoingEdges.size()-1; j >= 0; j--){
 			parentGraph.removeEdge(outgoingEdges.get(j));
-		}
-		for(int j = inputEdges.size()-1; j >= 0; j--){
-			subGraph.removeEdge(inputEdges.get(j));
 		}
 		for(int j = outputEdges.size()-1; j >= 0; j--){
 			subGraph.removeEdge(outputEdges.get(j));
@@ -252,12 +256,12 @@ public class MetaVertex extends Vertex {
 				}
 			}
 			if(!matches){
-				System.out.println("Incoming Connection Found "+inputEdge);
+				//System.out.println("Incoming Connection Found "+inputEdge);
 				ExpressionEdgeImpl newEdge = ExpressionEdgeImpl.createEdge(inputEdge.edgeName, 
 						vertex, this, inputEdge.dataType);
-				System.out.println(newEdge);
+				//System.out.println(newEdge);
 				parentGraph.edges.add(newEdge);
-				System.out.println(parentGraph);
+				//System.out.println(parentGraph);
 			}
 		}
 	}
@@ -295,40 +299,15 @@ public class MetaVertex extends Vertex {
 
 		Boolean isSourceInMetaNode = subGraph.vertices.containsKey(sourceVertex.toString());
 		Boolean isDestinationInMetaNode = subGraph.vertices.containsKey(destinationVertex.toString());
-				
-		Vertex root = rootVertex;
-		Vertex sink = sinkVertex;
-		for(String s : subGraph.vertices.keySet())
-			System.out.println(s);
-		System.out.println(isSourceInMetaNode + " " + isDestinationInMetaNode);
-
 		if(isSourceInMetaNode && isDestinationInMetaNode){
+			if(edgeName.equals(""))
+				edgeName = "Unnamed_" + ExpressionEdgeImpl.getNextEdgeID();
 			ExpressionEdgeImpl insideEdge = ExpressionEdgeImpl.createEdge(edgeName, sourceVertex, destinationVertex, dataType);
 			subGraph.edges.add(insideEdge);
 			return;
 		}
-		else if(parentGraph == null){
-			System.out.println("Parent Is Null");
-			return;
-		}
-		
-		Boolean isSourceInParentNode = parentGraph.vertices.containsKey(sourceVertex.toString());
-		Boolean isDestinationInParentNode = parentGraph.vertices.containsKey(destinationVertex.toString());
-		
-		if(isSourceInParentNode && isDestinationInMetaNode){
-			ExpressionEdgeImpl insideEdge = ExpressionEdgeImpl.createEdge(edgeName, root, destinationVertex, dataType);
-			ExpressionEdgeImpl outsideEdge = ExpressionEdgeImpl.createEdge(edgeName, sourceVertex, this, dataType);
-			subGraph.edges.add(insideEdge);
-			parentGraph.edges.add(outsideEdge);
-		}
-		else if(isSourceInMetaNode && isDestinationInParentNode){
-			ExpressionEdgeImpl insideEdge = ExpressionEdgeImpl.createEdge(edgeName, sourceVertex, sink, dataType);
-			ExpressionEdgeImpl outsideEdge = ExpressionEdgeImpl.createEdge(edgeName, this, destinationVertex, dataType);
-			subGraph.edges.add(insideEdge);
-			parentGraph.edges.add(outsideEdge);
-		}
 		else{
-			System.out.println("This edge doesn't belong here "+ edgeName + " " + sourceVertex + " " + destinationVertex + " " +dataType);
+			System.out.println("Edge doesn't belong here!");
 		}
 	}
 	
@@ -339,7 +318,7 @@ public class MetaVertex extends Vertex {
 			if( v != rootVertex && v.getIncomingEdges().isEmpty()){
 				for(ExpressionEdgeImpl e : v.getOutgoingEdges()){
 					String edgeName = v.vertexName;
-					if(e.edgeName.length() > 0)
+					if(!e.edgeName.contains("Unnamed"))
 						edgeName = e.edgeName;
 					putEdge(edgeName, rootVertex, e.getDestinationVertex(), e.dataType);
 					subGraph.removeEdge(e);

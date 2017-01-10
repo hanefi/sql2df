@@ -38,8 +38,9 @@ public class App {
      * Generates the filter sub-graph.
      * @param filterExpression Expression that is used in filtering, WHERE clause of the query.
      * @param selectColumns Columns that are used in SELECT clause of the query.
+     * @throws Exception 
      */
-    public static MetaVertex generateFilterGraph(Expression filterExpression, Set<String> selectColumns, Set<String> tables) {
+    public static MetaVertex generateFilterGraph(Expression filterExpression, Set<String> selectColumns, Set<String> tables) throws Exception {
         // Generates a sub-graph with one boolean filter output.
         MetaVertex metaVertex = new MetaVertex("FILTER_SUBGRAPH");
     	ExpressionGraphGenerator expressionGraphGenerator = new ExpressionGraphGenerator(metaVertex, tables);
@@ -456,8 +457,8 @@ public class App {
         for(Vertex v : TableVertex.tableVertexMap.values())
         	graph.putVertex(v);
          
-        filterVertex.mergeWithParent();
-        selectVertex.mergeWithParent();
+       // filterVertex.mergeWithParent();
+       // selectVertex.mergeWithParent();
         // All graphs are printed to files
 
 
