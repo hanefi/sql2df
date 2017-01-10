@@ -36,7 +36,7 @@ public class GreedyScheduler {
 				Vertex v = bfsQueue.remove();
 				instruction.add(v);
 				visited.add(v);
-				for(ExpressionEdgeImpl e : v.getOutgoingEdges()){
+				for(EdgeImpl e : v.getOutgoingEdges()){
 					Vertex targetVertex = e.getDestinationVertex();
 					
 					int oldIndegree = inDegrees.get(targetVertex);

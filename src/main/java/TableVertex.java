@@ -1,9 +1,6 @@
 package main;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * A Vertex implementation for representation of the tables.
@@ -16,12 +13,11 @@ public class TableVertex extends Vertex {
 	
 
 	public TableVertex(String tableName) {
-		this.vertexName = tableName;
+		super(tableName);
 	}
 	
 	public TableVertex(String tableName, int id) {
-		this(tableName);
-		this.id = id;
+		super(tableName, id);
 	}
 
 	@Override
@@ -42,16 +38,5 @@ public class TableVertex extends Vertex {
 		}
 		
 		return tableVertexMap.get(tableName);
-	}
-	
-	public static TableVertex fromString(String vertexString) {
-		Pattern vertexPattern = Pattern.compile("table: "+"(.*)");
-		Matcher vertexMatcher = vertexPattern.matcher(vertexString);
-		if(vertexMatcher.find()){
-			String vertexName = vertexMatcher.group(1);
-			return getTableVertex(vertexName);
-		} else {
-			throw new IllegalArgumentException("Cannot parse TableVertex from String: " + vertexString);
-		}
 	}
 }

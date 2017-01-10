@@ -1,63 +1,67 @@
 package main;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public abstract class Vertex {
 	
-	List<ExpressionEdgeImpl> outgoingEdges;
-	List<ExpressionEdgeImpl> incomingEdges;
+	List<EdgeImpl> outgoingEdges;
+	List<EdgeImpl> incomingEdges;
 	String vertexName;
 	public int id;
 	public String inputCardinality;
 	public String outputCardinality;
 	
-	public Vertex(){
+	public static int VERTEX_COUNTER = 0;
+	
+	public Vertex(String vertexName, int id){
+		this.vertexName = vertexName;
 		outgoingEdges = new LinkedList<>();
 		incomingEdges = new LinkedList<>();
 		inputCardinality = "1";
 		outputCardinality = "1";
+		this.id = id;
 	}
 	
-	public List<ExpressionEdgeImpl> getOutgoingEdges(){
+	public Vertex(String vertexName){
+		this(vertexName, VERTEX_COUNTER++);
+	}
+	
+	public List<EdgeImpl> getOutgoingEdges(){
 		return outgoingEdges;
 	}
 	
-	public List<ExpressionEdgeImpl> getIncomingEdges(){
+	public List<EdgeImpl> getIncomingEdges(){
 		return incomingEdges;
 	}
 	
-	public void removeOutgoingEdge(ExpressionEdgeImpl edge){
+	public void removeOutgoingEdge(EdgeImpl edge){
 		outgoingEdges.remove(edge);
 	}
 	
-	public void removeIncomingEdge(ExpressionEdgeImpl edge){
+	public void removeIncomingEdge(EdgeImpl edge){
 		incomingEdges.remove(edge);
 	}
 	
-	public void addOutgoingEdge(ExpressionEdgeImpl edge){
+	public void addOutgoingEdge(EdgeImpl edge){
 		outgoingEdges.add(edge);
 	}
 	
-	public void addIncomingEdge(ExpressionEdgeImpl edge){
+	public void addIncomingEdge(EdgeImpl edge){
 		incomingEdges.add(edge);
 	}
 	
 	public int getFanOut(){
 		int fanOut = 0;
-		for(ExpressionEdgeImpl edge : outgoingEdges){
-			fanOut += ExpressionEdgeImpl.dataSize(edge.dataType);
+		for(EdgeImpl edge : outgoingEdges){
+			fanOut += EdgeImpl.dataSize(edge.dataType);
 		}
 		return fanOut;
 	}
 	
 	public int getFanIn(){
 		int fanIn = 0;
-		for(ExpressionEdgeImpl edge : incomingEdges){
-			fanIn += ExpressionEdgeImpl.dataSize(edge.dataType);
+		for(EdgeImpl edge : incomingEdges){
+			fanIn += EdgeImpl.dataSize(edge.dataType);
 		}
 		return fanIn;
 	}

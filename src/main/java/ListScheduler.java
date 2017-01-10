@@ -100,15 +100,15 @@ public class ListScheduler extends HuScheduler{
 				int usedResourceCount = 0;
 				
 				for(Vertex v : inProgress.keySet()){
-					if(resource.canParseVertex(v))
+					if(resource.canProcessVertex(v))
 						usedResourceCount ++;
 				}
 				
 				for(int i = alpha; usedResourceCount < resource.availableAmount && i >= 0; i--){
 					for(Vertex v : p.get(i)){
-						if(!inProgress.containsKey(v) && !visited.contains(v) && resource.canParseVertex(v) && allowedVertices.contains(v)){
+						if(!inProgress.containsKey(v) && !visited.contains(v) && resource.canProcessVertex(v) && allowedVertices.contains(v)){
 							boolean neighborsVisited = true;
-							for(ExpressionEdgeImpl e : v.getIncomingEdges())
+							for(EdgeImpl e : v.getIncomingEdges())
 								if(!visited.contains(e.getSourceVertex()))
 									neighborsVisited = false;
 							if(neighborsVisited){

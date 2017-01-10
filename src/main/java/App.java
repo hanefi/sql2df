@@ -38,8 +38,9 @@ public class App {
      * Generates the filter sub-graph.
      * @param filterExpression Expression that is used in filtering, WHERE clause of the query.
      * @param selectColumns Columns that are used in SELECT clause of the query.
+     * @throws Exception 
      */
-    public static MetaVertex generateFilterGraph(Expression filterExpression, Set<String> selectColumns, Set<String> tables) {
+    public static MetaVertex generateFilterGraph(Expression filterExpression, Set<String> selectColumns, Set<String> tables) throws Exception {
         // Generates a sub-graph with one boolean filter output.
         MetaVertex metaVertex = new MetaVertex("FILTER_SUBGRAPH");
     	ExpressionGraphGenerator expressionGraphGenerator = new ExpressionGraphGenerator(metaVertex, tables);
@@ -56,11 +57,11 @@ public class App {
          */
         for (String selectColumn : selectColumns) {
             Vertex selectVertex = new VertexImpl("Selection");
-            metaVertex.putVertex(selectVertex);
+            metaVertex.subGraph.putVertex(selectVertex);
             String columnDataType = dataTypeOfColumnMap.get(selectColumn).toString().toLowerCase(Locale.ENGLISH);
-            metaVertex.subGraph.edges.add(ExpressionEdgeImpl.createEdge(selectColumn, metaVertex.rootVertex , selectVertex, columnDataType));
-            metaVertex.putEdge("", expressionGraphGenerator.rootVertex, selectVertex, "boolean");
-            metaVertex.subGraph.edges.add(ExpressionEdgeImpl.createEdge(selectColumn, selectVertex, metaVertex.sinkVertex, columnDataType));
+            metaVertex.subGraph.putEdge(selectColumn, metaVertex.rootVertex , selectVertex, columnDataType);
+            metaVertex.subGraph.putEdge("", expressionGraphGenerator.rootVertex, selectVertex, "boolean");
+            metaVertex.subGraph.putEdge(selectColumn, selectVertex, metaVertex.sinkVertex, columnDataType);
         }
         
         //metaVertex.collapseChildren();
@@ -85,7 +86,6 @@ public class App {
         	SelectGraphGenerator selectGraphGenerator = new SelectGraphGenerator(metaVertex, plainSelect.getFromItem(), tables);
         	selectItem.accept(selectGraphGenerator);
         }
-        metaVertex.collapseChildren();
         metaVertex.edgifySources();
         System.out.println("Printing SELECT Subgraph"); //DEBUG
         System.out.println(metaVertex.subGraph); //DEBUG
@@ -328,8 +328,7 @@ public class App {
                 for (String column : allColumns) {
                     String table = tableOfColumnMap.get(column);
                     String dataType = dataTypeOfColumnMap.get(column);
-                    ExpressionEdgeImpl edge = ExpressionEdgeImpl.createEdge(column, TableVertex.getTableVertex(table), filterVertex, dataType);
-                    graph.edges.add(edge);
+                    graph.putEdge(column, TableVertex.getTableVertex(table), filterVertex, dataType);
                     lastVertexOfColumn.put(column, filterVertex);
                 }
             }
@@ -343,8 +342,7 @@ public class App {
                     String columnName = groupByColumn.toString().toLowerCase(Locale.ENGLISH);
                     String dataType = getDataType(groupByColumn);
                     Vertex lastVertex = lastVertexOfColumn.get(columnName);
-                    ExpressionEdgeImpl edge = ExpressionEdgeImpl.createEdge(columnName, lastVertex, groupVertex, dataType);
-                    graph.edges.add(edge);
+                    graph.putEdge(columnName, lastVertex, groupVertex, dataType);
                     lastVertexOfColumn.put(columnName, groupVertex);
                 }
             }
@@ -358,13 +356,11 @@ public class App {
                 Vertex lastVertex = lastVertexOfColumn.get(column);
                 //System.out.println("Column info: "+ dataType + " " + lastVertex); //DEBUG
                 if(lastVertex != null){
-                	ExpressionEdgeImpl edge = ExpressionEdgeImpl.createEdge(column, lastVertex, selectVertex, dataType);
-                    graph.edges.add(edge);
+                	graph.putEdge(column, lastVertex, selectVertex, dataType);
                 }
                 else{
                     String table = tableOfColumnMap.get(column);
-                    ExpressionEdgeImpl edge = ExpressionEdgeImpl.createEdge(column, TableVertex.getTableVertex(table), selectVertex, dataType);
-                    graph.edges.add(edge);
+                    graph.putEdge(column, TableVertex.getTableVertex(table), selectVertex, dataType);
                 }
                 lastVertexOfColumn.put(column, selectVertex);
             }
@@ -400,8 +396,7 @@ public class App {
                     String columnName = orderByExpression.toString().toLowerCase(Locale.ENGLISH);
                     String dataType = getDataType(orderByExpression);
                     Vertex lastVertex = lastVertexOfColumn.get(columnName);
-                    ExpressionEdgeImpl edge = ExpressionEdgeImpl.createEdge(columnName, lastVertex, orderVertex, dataType);
-                    graph.edges.add(edge);
+                    graph.putEdge(columnName, lastVertex, orderVertex, dataType);
                     lastVertexOfColumn.put(columnName, orderVertex);
                 }
 
@@ -426,8 +421,7 @@ public class App {
 
                         if (lastVertex != orderVertex) {
                             String dataType = getDataType(selectExpressionItem.getExpression());
-                            ExpressionEdgeImpl edge = ExpressionEdgeImpl.createEdge(name, selectVertex, orderVertex, dataType);
-                            graph.edges.add(edge);
+                            graph.putEdge(name, selectVertex, orderVertex, dataType);
                             lastVertexOfColumn.put(name, orderVertex);
                         }
                     }
@@ -437,8 +431,7 @@ public class App {
                                 Vertex lastVertex = lastVertexOfColumn.get(column);
                                 if (lastVertex != orderVertex) {
                                     String dataType = App.dataTypeOfColumnMap.get(column);
-                                    ExpressionEdgeImpl edge = ExpressionEdgeImpl.createEdge(column, selectVertex, orderVertex, dataType);
-                                    graph.edges.add(edge);
+                                    graph.putEdge(column, selectVertex, orderVertex, dataType);
                                     lastVertexOfColumn.put(column, orderVertex);
                                 }
                     		}
@@ -455,11 +448,6 @@ public class App {
         
         for(Vertex v : TableVertex.tableVertexMap.values())
         	graph.putVertex(v);
-         
-        filterVertex.mergeWithParent();
-        selectVertex.mergeWithParent();
-        // All graphs are printed to files
-
 
         generateGraphFile(graph, new File(queryName + ".dot"));
         generateGraphFile(selectVertex.subGraph, new File(queryName + ".select.dot"));
@@ -485,26 +473,6 @@ public class App {
         }
         stream.println("}");*/
         stream.println(graph);
-        stream.close();
-    }
-
-
-    /**
-     * Prints select and filter sub-graphs to a file.
-     *
-     * Graphs are defined in DOT language.
-     * @param file File to which graphs will be printed.
-     * @throws FileNotFoundException
-     */
-    public static void generateSubGraphsFile(File file) throws FileNotFoundException {
-        PrintStream stream = new PrintStream(file);
-        stream.println("digraph {");
-        for (Edge edge : ExpressionEdgeImpl.edgeList) {
-            System.out.println(edge+ " "+ edge.getSourceVertex());
-            stream.println('"' + edge.getSourceVertex().toString() + '"' + " -> " + '"'
-                    + edge.getDestinationVertex().toString() + '"' + "[label=\"" + edge.toString() + "\"]");
-        }
-        stream.println("}");
         stream.close();
     }
 
