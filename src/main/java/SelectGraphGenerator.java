@@ -5,8 +5,6 @@ import net.sf.jsqlparser.statement.select.FromItem;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import net.sf.jsqlparser.statement.select.SelectItemVisitor;
 
-import java.util.HashSet;
-import java.util.Locale;
 import java.util.Set;
 
 /**

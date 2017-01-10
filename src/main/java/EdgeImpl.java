@@ -1,6 +1,4 @@
 package main;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,18 +46,6 @@ public class EdgeImpl implements Edge {
             return -1;
         }
     }
-    
-	public static EdgeImpl fromString(String edgeString, Vertex sourceVertex, Vertex destinationVertex) {
-		Pattern edgePattern = Pattern.compile("(.*)\\[(.*)\\](.*)");
-		Matcher edgeMatcher = edgePattern.matcher(edgeString);
-		if(edgeMatcher.find()){
-			String edgeName = edgeMatcher.group(1);
-			String dataType = edgeMatcher.group(2);
-			return new EdgeImpl(edgeName, sourceVertex, destinationVertex, dataType);
-		} else {
-			throw new IllegalArgumentException("Cannot parse edge from String: " + edgeString);
-		}
-	}
 
     @Override
     public String toString() {
