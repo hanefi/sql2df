@@ -15,27 +15,32 @@ public class Graph {
 		vertices = new HashMap<>();
 		edges = new HashSet<>();
 	}
-	
-    public Vertex getVertexFromString(String vertexString){
-        if(!vertices.containsKey(vertexString)) {
-            Vertex vertex = Vertex.fromString(vertexString);
-            vertices.put(vertexString, vertex);
-        }
-        return vertices.get(vertexString);
-    }
     
-    public void removeEdge(EdgeImpl e){
-    	//System.out.println("Edge to be removed " + e.getSourceVertex()+" "+e.getDestinationVertex());
-    	
+	/**
+	 * Removes the edge from the graph.
+	 * @param e The edge to be removed.
+	 */
+    public void removeEdge(EdgeImpl e){    	
     	e.getSourceVertex().getOutgoingEdges().remove(e);
     	e.getDestinationVertex().getIncomingEdges().remove(e);
     	edges.remove(e);
     }
     
+    /**
+     * Puts a vertex into the graph.
+     * @param vertex
+     */
 	public void putVertex(Vertex vertex){
 		vertices.put(vertex.toString(), vertex);
 	}
 	
+	/**
+	 * Puts an edge into the graph.
+	 * @param edgeName The name of the edge.
+	 * @param sourceVertex The source vertex of the edge.
+	 * @param destinationVertex The destination vertex of the edge.
+	 * @param dataType The data type of the edge.
+	 */
 	public void putEdge(String edgeName, Vertex sourceVertex, Vertex destinationVertex, String dataType){		
 		if(edgeName.equals(""))
 			edgeName = "Unnamed_" + EdgeImpl.getNextEdgeID();
@@ -60,6 +65,9 @@ public class Graph {
     }
     
     
+    /**
+     * Collapses the meta vertices one level deep.
+     */
     public void collapseAllMetaVertices(){
     	List<MetaVertex> metaVertexes = new LinkedList<>();
     	for(Vertex v : vertices.values())
@@ -70,7 +78,11 @@ public class Graph {
     }
     
     
-    
+    /**
+     * Prints the graph with boxes representing a schedule.
+     * @param schedule The schedule for the graph.
+     * @return DOT representation of the scheduled graph.
+     */
     public String printWithSchedule(List<List<Vertex>> schedule){
     	String output = "";
     	output += "digraph {\n";

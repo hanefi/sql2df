@@ -18,9 +18,8 @@ public class GraphUtils{
     		destinationList.add(cloneList);
     	}
     }
-    
-    //Doesn't loop if cycles exist, but is not deterministic
-    public List<List<Vertex>> getPathsWithColumn(String columnLabel, Vertex startVertex, Map<Vertex, List<List<Vertex>>> visited){
+
+    private List<List<Vertex>> getPathsWithColumn(String columnLabel, Vertex startVertex, Map<Vertex, List<List<Vertex>>> visited){
     	List<List<Vertex>> paths = new LinkedList<>();
     	visited.put(startVertex, paths);
     	for(EdgeImpl edge: startVertex.getOutgoingEdges()){
@@ -41,6 +40,11 @@ public class GraphUtils{
     	return paths;
     }
 
+    /**
+     * Prints all paths of a given table column.
+     * @param tableName Name of the table.
+     * @param columnLabel Name of the column.
+     */
     public void printPaths(String tableName, String columnLabel){
     	Vertex startVertex = TableVertex.getTableVertex(tableName);
     	List<List<Vertex>> paths = 
