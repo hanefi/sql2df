@@ -18,7 +18,7 @@ import java.util.Set;
  * @author kaan
  *
  */
-public class ListScheduler extends HuScheduler{
+public class ListScheduler extends HuScheduler implements Scheduler{
 
 	public static final String RESOURCE_CONFIG_PATH = "res/computing-units/scheduler-resources.csv";
 	private List<ComputingUnit> resources;

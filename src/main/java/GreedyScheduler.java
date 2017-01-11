@@ -13,7 +13,7 @@ import java.util.Set;
  * @author kaan
  *
  */
-public class GreedyScheduler {
+public class GreedyScheduler implements Scheduler{
 
 	Graph graph;
 	
