@@ -9,6 +9,10 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+/**
+ * Implementation of Hu's Scheduling algorithm.
+ * @author kaan
+ */
 public class HuScheduler {
 	
 	public static final int LATENCY = 1;
@@ -19,6 +23,10 @@ public class HuScheduler {
 		this.graph = graph;
 	}
 	
+	/**
+	 * Schedules according to Hu's algorithm.
+	 * @return The schedule.
+	 */
 	public List<List<Vertex>> schedule(){
 		Map<Vertex, Integer> labels = computeDAG();
 		int alpha = getMaximumLabel(labels);
@@ -55,6 +63,13 @@ public class HuScheduler {
 		
 	}
 	
+	/**
+	 * Finds the minimum number of resources needed to achieve minimal latency.
+	 * Uses Hu's theorem
+	 * @param alpha Maximum label among vertices.
+	 * @param p The vertices, grouped according to their labels.
+	 * @return The lower bound on resources needed.
+	 */
 	public int findMinResources(int alpha, List<List<Vertex>> p){
 		int maxGamma = -1;
 		int maxValue = Integer.MIN_VALUE;
@@ -97,7 +112,10 @@ public class HuScheduler {
 	}
 	
 	
-	//DAG in Reverse Order
+	/**
+	 * Performs DAG in reverse order.
+	 * @return The label of each vertex
+	 */
 	public Map<Vertex, Integer> computeDAG(){
 		Queue<Vertex> DAGQueue = new LinkedList<>();
 		Map<Vertex, Integer> indegrees = computeIndegrees();
@@ -127,7 +145,11 @@ public class HuScheduler {
 		return labels;
 	}
 	
-	public Map<Vertex, Integer> computeIndegrees(){
+	/**
+	 * Computes indegrees of each vertex.
+	 * @return Indegrees of each vertex.
+	 */
+	private Map<Vertex, Integer> computeIndegrees(){
 		Map<Vertex, Integer> indegrees = new HashMap<>();
 		
 		for(Vertex v : graph.vertices.values()){

@@ -8,6 +8,11 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+/**
+ * A scheduler which partitions the graph into subgraphs of uniform frequency.
+ * @author kaan
+ *
+ */
 public class GreedyScheduler {
 
 	Graph graph;
@@ -15,6 +20,11 @@ public class GreedyScheduler {
 	public GreedyScheduler(Graph graph){
 		this.graph = graph;
 	}
+	
+	/**
+	 * Partitions the graph into subgraphs of uniform frequency.
+	 * @return The partitions.
+	 */
 	
 	public List<List<Vertex>> schedule(){
 		Map<Vertex, Integer> inDegrees = getIndegrees();

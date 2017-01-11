@@ -49,7 +49,10 @@ public abstract class Vertex {
 	public void addIncomingEdge(EdgeImpl edge){
 		incomingEdges.add(edge);
 	}
-	
+	/**
+	 * Returns the total data size of outgoing edges.
+	 * @return The total data size of outgoing edges.
+	 */
 	public int getFanOut(){
 		int fanOut = 0;
 		for(EdgeImpl edge : outgoingEdges){
@@ -58,6 +61,10 @@ public abstract class Vertex {
 		return fanOut;
 	}
 	
+	/**
+	 * Returns the total data size of incoming edges.
+	 * @return The total data size of incoming edges.
+	 */
 	public int getFanIn(){
 		int fanIn = 0;
 		for(EdgeImpl edge : incomingEdges){
@@ -72,13 +79,5 @@ public abstract class Vertex {
 	
 	public String getOutputCardinality(){
 		return outputCardinality;
-	}
-	
-	public static Vertex fromString(String vertexString) {
-		try{
-			return TableVertex.fromString(vertexString);
-		} catch(IllegalArgumentException e) {
-			return VertexImpl.fromString(vertexString);
-		}
 	}
 }
