@@ -19,7 +19,8 @@ This application assumes that a `res` folder resides next to it and this `res` f
 
 After invoking the application, two new files are generated. For the above example these are:
 - `q1.sql.dot`: High level data-flow graph in DOT language.
-- `q1.sql.filter.dot`: Low level filtering and selection sub-graphs in DOT language.
+- `q1.sql.filter.dot`: Low level filtering sub-graph in DOT language.
+- `q1.sql.select.dot`: Low level selection sub-graph in DOT language.
 
 # Visualization
 
