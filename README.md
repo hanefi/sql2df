@@ -1,3 +1,7 @@
+# Introduction
+
+This is a fork of Can Guler's project (https://github.com/cmpe492-cg/sql2df) with focus on graph processing. It is intended to be an open-source toolkit to create dataflow graph representations of SQL queries. It can be useful for optimizing how the SQL queries are processed.
+
 # Folder structure
 
 - [**doc**](https://github.com/impossiblity/sql2df/tree/master/doc) folder contains JavaDoc documentation generated from the source code comments. They describe the functionality of classes and functions.
@@ -44,6 +48,19 @@
   - `dataTypeOfColumnMap`: Key is column name, value is its data type
   Assumes that no two columns with the same name exist.
 - *processQuery*: Processes a query. First of all, it parses a query. Then creates a high level data-flow graph with table name, FILTER, GROUP, SELECT, and ORDER nodes. Two low level graphs are also created. One for filtering and one for selection. As this method is the most of the application, detailed explanation is done at the source code file as the source code comments.
+
+# Graph Utility Functions
+There are several functions developed in this project to help with processing dataflow graphs. A table is given as a summary below:
+
+| Function        | Class           | Short Description  |
+| :-------------: | :-------------: | :-----------:|
+| getFanIn()      | Vertex          | Returns total incoming data size. |
+| getFanOut()     | Vertex          | Returns total outgoing data size. |
+| printPaths(tableName, columnLabel) | GraphUtils      |  Prints all paths a column takes in the graph. |
+| MetaVertex(vertices, parentGraph, vertexName) | MetaVertex      |  Forms a meta-vertex, encapslating vertices in parentGraph. |
+| mergeWithParent() | MetaVertex      |  Merges sub-graph with parentGraph. |
+| collapseAllMetaVertices() | Graph      |  Merges all meta-vertexes with the graph. |
+
 
 # Other material
 The detailed **project report** for this framework can be found [here](https://www.dropbox.com/s/lawg5c1x8qbxnnp/Grad_Project___Final_Report.pdf?dl=0).
