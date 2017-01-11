@@ -13,6 +13,11 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
+/**
+ * An implementation of List Scheduling algorithm for this case.
+ * @author kaan
+ *
+ */
 public class ListScheduler extends HuScheduler{
 
 	public static final String RESOURCE_CONFIG_PATH = "res/computing-units/scheduler-resources.csv";
