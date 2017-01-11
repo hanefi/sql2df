@@ -11,7 +11,7 @@ sql2df.jar is an executable jar archive. It contains all necessary Java dependen
 
 An example invokation:
 
-`java -jar sql2df.jar res/create_table.sql res/q1.sql`.
+`java -jar Sql2Df2-all-1.0.jar res/create_table.sql res/q1.sql`.
 
 On Windows OS, instead of "/", you may need to use "\".
 
