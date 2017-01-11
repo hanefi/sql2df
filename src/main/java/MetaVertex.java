@@ -5,7 +5,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
-
+/**
+ * A Vertex to represent a subgraph within a graph.
+ * @author kaan
+ *
+ */
 public class MetaVertex extends Vertex {
 	
 	public static final String ROOT = "INPUTS";
@@ -13,12 +17,13 @@ public class MetaVertex extends Vertex {
 	
 	public Vertex rootVertex;
 	public Vertex sinkVertex;
-	protected Graph parentGraph; //Exists if we ever want to collapse a graph
+	protected Graph parentGraph; 
 	protected Graph subGraph;
 	
-	//private String vertexName;
-	//private int id;
-	
+	/**
+	 * Construct an empty MetaVertex with a given name
+	 * @param vertexName Name of this meta-vertex.
+	 */
 	public MetaVertex(String vertexName){
 		super(vertexName);
 		subGraph = new Graph();
@@ -29,6 +34,12 @@ public class MetaVertex extends Vertex {
 		subGraph.putVertex(sinkVertex);
 	}
 	
+	/**
+	 * Construct a MetaVertex with a list of vertices from a parent graph.
+	 * @param vertices List of vertices to be encapsulated.
+	 * @param parentGraph The graph those vertices belong to.
+	 * @param vertexName Name of this meta-vertex.
+	 */
 	public MetaVertex(List<Vertex> vertices, Graph parentGraph, String vertexName){
 		this(vertexName);
 		MetaVertex.canCreateMetaNode(vertices, parentGraph);
@@ -39,14 +50,6 @@ public class MetaVertex extends Vertex {
 		
 		parentGraph.putVertex(this);
 	}
-	
-	/*
-	public void changeRoot(Vertex root){
-		this.subGraph.vertices.remove(this.rootVertex.toString());
-		this.rootVertex = root;
-		subGraph.putVertex(root);
-	}
-	*/
 	
 	private void putVertices(List<Vertex> vertices, Graph parentGraph){
 		for(Vertex vertex : vertices){
@@ -95,8 +98,13 @@ public class MetaVertex extends Vertex {
 		return true;
 	}
 	
-	/* Performs DAG analysis on the part before the meta node. 
-	 * Then checks if all incoming edges to meta-node are from that part. */
+	/**
+	 * Performs DAG analysis on the part before the meta node. 
+	 * Then checks if all incoming edges to meta-node are from that part. 
+	 * @param vertices
+	 * @param parentGraph
+	 * @return If the meta-note doesn't create a loop when formed.
+	 */
 	private static boolean verticesDontCreateLoop(List<Vertex> vertices, Graph parentGraph){
 		Map<Vertex, Integer> indegreeMap = new HashMap<>();
 		Queue<Vertex> dagQueue = new LinkedList<Vertex>();
@@ -131,6 +139,14 @@ public class MetaVertex extends Vertex {
 		return true;
 	}
 	
+	/**
+	 * Returns whether it is safe to create a meta-vertex. 
+	 * The conditions are that all the vertices should be in parent graph, 
+	 * and a loop shouldn't be formed when the meta-vertex is formed.
+	 * @param vertices
+	 * @param parentGraph
+	 * @return Whether it is safe to create a meta-vertex. 
+	 */
 	public static boolean canCreateMetaNode(List<Vertex> vertices, Graph parentGraph){
 		return verticesExistInGraph(vertices, parentGraph) &&
 				verticesDontCreateLoop(vertices, parentGraph);
@@ -141,6 +157,9 @@ public class MetaVertex extends Vertex {
 		return "meta: "+ vertexName +", " + "id: " + id;
 	}
 	
+	/**
+	 * Merges the sub-graph within the meta-vertex with its parent.
+	 */
 	public void mergeWithParent(){
 		if(parentGraph == null){
 			throw new IllegalStateException("Cannot merge a metanode for the second time. Parent Graph is null");
@@ -207,6 +226,10 @@ public class MetaVertex extends Vertex {
 		parentGraph = null;
 	}
 	
+	/**
+	 * Creates new edges in the parent graph with unmatched input edges.
+	 * @param vertex From where the new edges originate.
+	 */
 	public void createIncomingConnections(Vertex vertex){
 		System.out.println("Creating Incoming Connections");
 		Vertex inputsVertex = rootVertex;
@@ -231,6 +254,9 @@ public class MetaVertex extends Vertex {
 		}
 	}
 	
+	/**
+	 * Turns vertexes with in-degree 0 into edges connected to ROOT vertex.
+	 */
 	public void edgifySources(){
 		List<String> toRemove = new LinkedList<>();
 		for(String s : subGraph.vertices.keySet()){
@@ -251,6 +277,10 @@ public class MetaVertex extends Vertex {
 			
 	}
 	
+	/**
+	 * Returns the subgraph, in string form.
+	 * @return The printed subgraph.
+	 */
 	public String printSubGraph(){
 		return subGraph.toString();
 	}

@@ -1,7 +1,7 @@
 package main;
 
 /**
- * A Vertex implementation used for all non table nodes/
+ * A Vertex implementation used for all non table nodes
  */
 public class VertexImpl extends Vertex {
 	

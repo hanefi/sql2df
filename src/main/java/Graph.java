@@ -6,7 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
+/**
+ * A data structure to represent graphs.
+ * @author kaan
+ *
+ */
 public class Graph {
 	public Map<String, Vertex> vertices;
 	public Set<EdgeImpl> edges;

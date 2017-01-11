@@ -13,10 +13,14 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
+/**
+ * An implementation of List Scheduling algorithm for this case.
+ * @author kaan
+ *
+ */
 public class ListScheduler extends HuScheduler{
 
 	public static final String RESOURCE_CONFIG_PATH = "res/computing-units/scheduler-resources.csv";
-	//public static final String[] WHITELISTED = {"CONSTANT", "table"}; 
 	private List<ComputingUnit> resources;
 	
 	private Map<Vertex, Integer> labels;
@@ -30,7 +34,10 @@ public class ListScheduler extends HuScheduler{
 		readResourcesFromFile();
 	}
 	
-	
+	/**
+	 * Reads the resources available for the scheduler from a file.
+	 * @throws FileNotFoundException
+	 */
 	private void readResourcesFromFile() throws FileNotFoundException{
 		resources = new ArrayList<>();
 		Scanner scanner = new Scanner(new File(RESOURCE_CONFIG_PATH));
@@ -45,9 +52,12 @@ public class ListScheduler extends HuScheduler{
             resources.add(new ComputingUnit(name, availableAmount, latency, operations));
         }
         scanner.close();
-       // System.out.println(resources);
 	}
 	
+	/**
+	 * Schedules the graph, first partitioning the graph into SUF's greedily 
+	 * and then performing List Scheduling on each partition.
+	 */
 	public List<List<Vertex>> schedule(){
 		labels = computeDAG();
 		alpha = getMaximumLabel(labels);
@@ -66,7 +76,13 @@ public class ListScheduler extends HuScheduler{
 		return schedule;
 	}
 	
-	public List<List<Vertex>> schedule(int depth, List<Vertex> allowedVertices){
+	/**
+	 * Schedules with given depth and allowed vertices.
+	 * @param depth The degree of operations to be scheduled.
+	 * @param allowedVertices The allowed vertices for this scheduling step
+	 * @return The schedule
+	 */
+	private List<List<Vertex>> schedule(int depth, List<Vertex> allowedVertices){
 		
 		List<List<Vertex>> schedule = new LinkedList<List<Vertex>>();
 		
@@ -141,8 +157,13 @@ public class ListScheduler extends HuScheduler{
 		schedule.remove(schedule.size()-1);
 		return schedule;
 		
-	}	
-	public void scheduleFirstInstruction(List<List<Vertex>> schedule, Set<Vertex> visited){
+	}
+	/**
+	 * All sources are scheduled as a zeroth instruction
+	 * @param schedule The schedule this instruction is added to.
+	 * @param visited A marking set.
+	 */
+	private void scheduleFirstInstruction(List<List<Vertex>> schedule, Set<Vertex> visited){
 		List<Vertex> instruction = new LinkedList<>();
 		for(Vertex v : graph.vertices.values())
 			if(v.getIncomingEdges().size() == 0){

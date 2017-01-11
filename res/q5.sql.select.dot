@@ -1,5 +1,10 @@
 digraph {
-"Subtraction, id: 11" -> "Multiplication, id: 9"[label="[decimal (15, 2)] = 60", headlabel="1", taillabel="1" ]
-"Multiplication, id: 9" -> "sum, id: 8"[label="[decimal (15, 2)] = 60", headlabel="N", taillabel="1" ]
+"INPUTS, id: 5" -> "OUTPUTS, id: 6"[label="n_name[char (25)] = 200", headlabel="1", taillabel="1" ]
+"Multiplication, id: 9" -> "sum, id: 8"[label="Unnamed_5[decimal (15, 2)] = 60", headlabel="N", taillabel="1" ]
+"INPUTS, id: 5" -> "Subtraction, id: 11"[label="l_discount[decimal (15, 2)] = 60", headlabel="1", taillabel="1" ]
+"INPUTS, id: 5" -> "Subtraction, id: 11"[label="1[integer] = 32", headlabel="1", taillabel="1" ]
+"sum, id: 8" -> "OUTPUTS, id: 6"[label="revenue[decimal (15, 2)] = 60", headlabel="1", taillabel="1" ]
+"Subtraction, id: 11" -> "Multiplication, id: 9"[label="Unnamed_4[decimal (15, 2)] = 60", headlabel="1", taillabel="1" ]
+"INPUTS, id: 5" -> "Multiplication, id: 9"[label="l_extendedprice[decimal (15, 2)] = 60", headlabel="1", taillabel="1" ]
 }
 
