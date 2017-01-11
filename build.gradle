@@ -24,6 +24,25 @@ repositories {
     jcenter()
 }
 
+task testJar(type: Jar) {
+        manifest {
+        attributes 'Implementation-Title': 'Gradle Jar File Example',
+                'Implementation-Version': version,
+                'Main-Class': 'test.AppTester'
+    }
+    baseName = project.name + '-appTest'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+// In this section you declare where to find the dependencies of your project
+repositories {
+    // Use 'jcenter' for resolving your dependencies.
+    // You can declare any Maven/Ivy/file repository here.
+    jcenter()
+}
+
+
 // In this section you declare the dependencies for your production and test code
 dependencies {
 	compile 'com.github.jsqlparser:jsqlparser:0.9.4'
