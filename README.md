@@ -66,5 +66,7 @@ There are several functions developed in this project to help with processing da
 The detailed **project report** for this framework can be found [here](https://www.dropbox.com/s/lawg5c1x8qbxnnp/Grad_Project___Final_Report.pdf?dl=0).
 
 The **project report** of the previous project can be found [here](https://www.dropbox.com/s/x7vsl4mf3v7nbgy/son.pdf?dl=0).
-An explanation **video** can be watched [here](https://www.youtube.com/watch?v=u81K82FrYAo)
+
+An explanation **video** can be watched [here](https://www.youtube.com/watch?v=u81K82FrYAo).
+
 An explanation **video** of the previous project can be watched [here](https://youtu.be/r7FHBXGyH4E).
