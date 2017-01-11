@@ -7,14 +7,13 @@
 
 # Overall explanation of the framework
 
-**Edge** is an interface defined in Edge.java to represent dataflow between two vertices. Two classes implements it:
-- *EdgeImpl*: Used for data flow representation in the high level data-flow graph.
-- *ExpressionEdgeImpl*: Used for data flow representation in the low level filter and select data-flow graphs.
-Every instance of these clases are stored in edgeList lists defined in classes. These lists are used to print the graph to a file in the DOT language.
+**Edge** is an interface defined in Edge.java to represent dataflow between two vertices. One class implements it:
+- *EdgeImpl*: Used for data flow representation in the data-flow graph. It holds the data type as a string, from which the data size can be extracted.
 
-**Vertex** is an interface used to represent operations on or sources of data flows. It has two implementing classes:
+**Vertex** is an abstract class used to represent operations on or sources of data flows. It has three implementing classes:
 - *TableVertex*: Used for representing a table as the origin of a data flow. Used through static getTableVertex method. When this method is used, if a vertex is already created for a table, it is returned. Otherwise a new vertex is created.
 - *VertexImpl*: Used for representing all other vertices. It guarantees the uniqueness of each vertex by adding an unique id to each created instance.
+- *MetaVertex*: Used for representing encapsulated sub-graphs. 
 
 **FunctionDef** is a class to store function declarations. It identifies a function by its name, the type of its parameters, and the type of its return value.
 
@@ -36,6 +35,8 @@ Every instance of these clases are stored in edgeList lists defined in classes. 
 - *processQuery*: Processes a query. First of all, it parses a query. Then creates a high level data-flow graph with table name, FILTER, GROUP, SELECT, and ORDER nodes. Two low level graphs are also created. One for filtering and one for selection. As this method is the most of the application, detailed explanation is done at the source code file as the source code comments.
 
 # Other material
-The detailed **project report** for this framework can be found [here](https://www.dropbox.com/s/x7vsl4mf3v7nbgy/son.pdf?dl=0).
+The detailed **project report** for this framework can be found [here](https://www.dropbox.com/s/lawg5c1x8qbxnnp/Grad_Project___Final_Report.pdf?dl=0).
 
-An explanation **video** can be watched [here](https://youtu.be/r7FHBXGyH4E).
+The **project report** of the previous project can be found [here](https://www.dropbox.com/s/x7vsl4mf3v7nbgy/son.pdf?dl=0).
+An explanation **video** can be watched [here](https://www.youtube.com/watch?v=u81K82FrYAo)
+An explanation **video** of the previous project can be watched [here](https://youtu.be/r7FHBXGyH4E).
