@@ -4,14 +4,14 @@ First of all, you need to install [Java Runtime Environment](http://www.oracle.c
 # How to run
 sql2df.jar is an executable jar archive. It contains all necessary Java dependencies. It should be run with two command line arguments:
 
-`java -jar sql2df.jar <create table query file> <select query file>`
+`java -jar Sql2Df2-all-1.0.jar <create table query file> <select query file>`
 
 1. SQL file containing CREATE TABLE queries to extract table schema
 2. SQL file containing SELECT query to be converted.
 
 An example invokation:
 
-`java -jar sql2df.jar res/create_table.sql res/q1.sql`.
+`java -jar Sql2Df2-all-1.0.jar res/create_table.sql res/q1.sql`.
 
 On Windows OS, instead of "/", you may need to use "\".
 
