@@ -13,7 +13,7 @@ import java.util.Set;
  * Implementation of Hu's Scheduling algorithm.
  * @author kaan
  */
-public class HuScheduler {
+public class HuScheduler implements Scheduler{
 	
 	public static final int LATENCY = 1;
 	
